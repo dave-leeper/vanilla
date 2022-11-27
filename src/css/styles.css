@@ -69,6 +69,11 @@
   .flex-space-around {justify-content: space-around;}
   .flex-space-between {justify-content: space-between;}
   .flex-space-evenly {justify-content: space-evenly;}
+  .flex-align-start {align-items: flex-start;}
+  .flex-align-end {align-items: flex-end;}
+  .flex-align-center {align-items: center;}
+  .flex-align-stretch {align-items: stretch;}
+  .flex-align-baseline {align-items: baseline;}
 
   .header-1 {font-family: var(--primary-font-family);         font-size: var(--header-1-font-size);     font-weight: var(--header-1-font-weight);     color: var(--header-1-text-color);}
   .header-2 {font-family: var(--primary-font-family);         font-size: var(--header-2-font-size);     font-weight: var(--header-2-font-weight);     color: var(--header-2-text-color);}
@@ -123,11 +128,23 @@
   .w30 {width: 30%;}        .w33 {width: 33.33%;}     .w40 {width: 40%;}        .w50 {width: 50%;}
   .w60 {width: 60%;}        .w66 {width: 66.66%;}     .w70 {width: 70%;}        .w75 {width: 66%;}
   .w80 {width: 80%;}        .w85 {width: 85%;}        .w90 {width: 90%;}        .w100 {width: 100%;}
+  .w5px {width: 5px}        .w10px {width: 10px;}     .w15px {width: 15px;}     .w20px {width: 20px;}
+  .w25px {width: 25px;}     .w30px {width: 30px;}     .w33px {width: 33px;}     .w35px {width: 35px;}
+  .w40px {width: 40px;}     .w45px {width: 45px;}     .w50px {width: 50px;}     .w55px {width: 55px;}
+  .w60px {width: 60px;}     .w65px {width: 65px;}     .w66px {width: 66px;}     .w70px {width: 70px;}
+  .w75px {width: 66px;}     .w80px {width: 80px;}     .w85px {width: 85px;}     .w90px {width: 90px;}
+  .w95px {width: 95px;}     .w100px {width: 100px;}
 
   .h5 {height: 15%;}        .h10 {height: 10%;}       .h20 {height: 20%;}       .h25 {height: 25%;}
   .h30 {height: 30%;}       .h33 {height: 33.33%;}    .h40 {height: 40%;}       .h50 {height: 50%;}
   .h60 {height: 60%;}       .h66 {height: 66.66%;}    .h70 {height: 70%;}       .h75 {height: 75%;}
   .h80 {height: 80%;}       .h85 {height: 85%;}       .h90 {height: 90%;}       .h100 {height: 100%;}
+  .h5px {height: 15px;}     .h10px {height: 10px;}    .h15px {height: 15px;}    .h20px {height: 20px;}
+  .h25px {height: 25px;}    .h30px {height: 30px;}    .h33px {height: 33px;}    .h35px {height: 35px;}
+  .h40px {height: 40px;}    .h45px {height: 45px;}    .h50px {height: 50px;}    .h55px {height: 5px;}
+  .h60px {height: 60px;}    .h65px {height: 65px;}    .h66px {height: 66px;}    .h70px {height: 70px;}
+  .h75px {height: 75px;}    .h80px {height: 80px;}    .h85px {height: 85px}     .h90px {height: 90px;}
+  .h95px {height: 95px;}    .h100px {height: 100px;}
 
   .pad-1 {padding: 1px;}    .pad-2 {padding: 2px;}    .pad-3 {padding: 3px;}    .pad-4 {padding: 4px;}
   .pad-5 {padding: 5px;}    .pad-6 {padding: 6px;}    .pad-7 {padding: 7px;}    .pad-8 {padding: 8px;}
@@ -341,3 +358,49 @@
   .border-cyan-7 {border-color:var(--cyan-7);}      .border-cyan-8 {border-color:var(--cyan-8);}        .border-cyan-9 {border-color:var(--cyan-9);}
   .border-cyan-a {border-color:var(--cyan-a);}      .border-cyan-b {border-color:var(--cyan-b);}        .border-cyan-c {border-color:var(--cyan-c);}
   .border-cyan-d {border-color:var(--cyan-d);}      .border-cyan-e {border-color:var(--cyan-e);}        .border-cyan-f {border-color:var(--cyan-f);}
+
+  .shadow-white {box-shadow: 3px 3px 9px #d9d9d9, -3px -3px 9px #ffffff;}       .shadow-grey-a {box-shadow: 3px 3px 9px #919191, -3px -3px 9px #c4c4c4;}
+  .shadow-grey-b {box-shadow: 3px 3px 9px #9f9f9f, -3px -3px 9px #d7d7d7;}      .shadow-grey-c {box-shadow: 3px 3px 9px #adadad, -3px -3px 9px #ebebeb;}
+  .shadow-grey-d {box-shadow: 3px 3px 9px #bcbcbc, -3px -3px 9px #fefefe;}      .shadow-grey-e {box-shadow: 3px 3px 9px #cacaca, -3px -3px 9px #ffffff;}
+  .shadow-grey-f {box-shadow: 3px 3px 9px #d9d9d9, -3px -3px 9px #ffffff;}      .shadow-red-a {box-shadow: 3px 3px 9px #910000, -3px -3px 9px #c40000;}
+  .shadow-red-b {box-shadow: 3px 3px 9px #9f0000, -3px -3px 9px #d70000;}       .shadow-red-c {box-shadow: 3px 3px 9px #ad0000, -3px -3px 9px #eb0000;}
+  .shadow-red-d {box-shadow: 3px 3px 9px #bc0000, -3px -3px 9px #fe0000;}       .shadow-red-e {box-shadow: 3px 3px 9px #ca0000, -3px -3px 9px #ff0000;}
+  .shadow-red-f {box-shadow: 3px 3px 9px #d90000, -3px -3px 9px #ff0000;}       .shadow-green-a {box-shadow: 3px 3px 9px #009100, -3px -3px 9px #00c400;}
+  .shadow-green-b {box-shadow: 3px 3px 9px #009f00, -3px -3px 9px #00d700;}     .shadow-green-c {box-shadow: 3px 3px 9px #00ad00, -3px -3px 9px #00eb00;}
+  .shadow-green-d {box-shadow: 3px 3px 9px #00bc00, -3px -3px 9px #00fe00;}     .shadow-green-e {box-shadow: 3px 3px 9px #00ca00, -3px -3px 9px #00ff00;}
+  .shadow-green-f {box-shadow: 3px 3px 9px #00d900, -3px -3px 9px #00ff00;}     .shadow-blue-a {box-shadow: 3px 3px 9px #000091, -3px -3px 9px #0000c4;}
+  .shadow-blue-b {box-shadow: 3px 3px 9px #00009f, -3px -3px 9px #0000d7;}      .shadow-blue-c {box-shadow: 3px 3px 9px #0000ad, -3px -3px 9px #0000eb;}
+  .shadow-blue-d {box-shadow: 3px 3px 9px #0000bc, -3px -3px 9px #0000fe;}      .shadow-blue-e {box-shadow: 3px 3px 9px #0000ca, -3px -3px 9px #0000ff;}
+  .shadow-blue-f {box-shadow: 3px 3px 9px #0000d9, -3px -3px 9px #0000ff;}      .shadow-yellow-a {box-shadow: 3px 3px 9px #919100, -3px -3px 9px #c4c400;}
+  .shadow-yellow-b {box-shadow: 3px 3px 9px #9f9f00, -3px -3px 9px #d7d700;}    .shadow-yellow-c {box-shadow: 3px 3px 9px #adad00, -3px -3px 9px #ebeb00;}
+  .shadow-yellow-d {box-shadow: 3px 3px 9px #bcbc00, -3px -3px 9px #fefe00;}    .shadow-yellow-e {box-shadow: 3px 3px 9px #caca00, -3px -3px 9px #ffff00;}
+  .shadow-yellow-f {box-shadow: 3px 3px 9px #d9d900, -3px -3px 9px #ffff00;}    .shadow-purple-a {box-shadow: 3px 3px 9px #910091, -3px -3px 9px #c400c4;}
+  .shadow-purple-b {box-shadow: 3px 3px 9px #9f009f, -3px -3px 9px #d700d7;}    .shadow-purple-c {box-shadow: 3px 3px 9px #ad00ad, -3px -3px 9px #eb00eb;}
+  .shadow-purple-d {box-shadow: 3px 3px 9px #bc00bc, -3px -3px 9px #fe00fe;}    .shadow-purple-e {box-shadow: 3px 3px 9px #ca00ca, -3px -3px 9px #ff00ff;}
+  .shadow-purple-f {box-shadow: 3px 3px 9px #d900d9, -3px -3px 9px #ff00ff;}    .shadow-cyan-a {box-shadow: 3px 3px 9px #009191, -3px -3px 9px #00c4c4;}
+  .shadow-cyan-b {box-shadow: 3px 3px 9px #009f9f, -3px -3px 9px #00d7d7;}      .shadow-cyan-c {box-shadow: 3px 3px 9px #00adad, -3px -3px 9px #00ebeb;}
+  .shadow-cyan-d {box-shadow: 3px 3px 9px #00bcbc, -3px -3px 9px #00fefe;}      .shadow-cyan-e {box-shadow: 3px 3px 9px #00caca, -3px -3px 9px #00ffff;}
+  .shadow-cyan-f {box-shadow: 3px 3px 9px #00d9d9, -3px -3px 9px #00ffff;}
+  .shadow-inset-white {box-shadow: inset 3px 3px 9px #d9d9d9, -3px -3px 9px #ffffff;}       .shadow-inset-grey-a {box-shadow: inset 3px 3px 9px #919191, -3px -3px 9px #c4c4c4;}
+  .shadow-inset-grey-b {box-shadow: inset 3px 3px 9px #9f9f9f, -3px -3px 9px #d7d7d7;}      .shadow-inset-grey-c {box-shadow: inset 3px 3px 9px #adadad, -3px -3px 9px #ebebeb;}
+  .shadow-inset-grey-d {box-shadow: inset 3px 3px 9px #bcbcbc, -3px -3px 9px #fefefe;}      .shadow-inset-grey-e {box-shadow: inset 3px 3px 9px #cacaca, -3px -3px 9px #ffffff;}
+  .shadow-inset-grey-f {box-shadow: inset 3px 3px 9px #d9d9d9, -3px -3px 9px #ffffff;}      .shadow-inset-red-a {box-shadow: inset 3px 3px 9px #910000, -3px -3px 9px #c40000;}
+  .shadow-inset-red-b {box-shadow: inset 3px 3px 9px #9f0000, -3px -3px 9px #d70000;}       .shadow-inset-red-c {box-shadow: inset 3px 3px 9px #ad0000, -3px -3px 9px #eb0000;}
+  .shadow-inset-red-d {box-shadow: inset 3px 3px 9px #bc0000, -3px -3px 9px #fe0000;}       .shadow-inset-red-e {box-shadow: inset 3px 3px 9px #ca0000, -3px -3px 9px #ff0000;}
+  .shadow-inset-red-f {box-shadow: inset 3px 3px 9px #d90000, -3px -3px 9px #ff0000;}       .shadow-inset-green-a {box-shadow: inset 3px 3px 9px #009100, -3px -3px 9px #00c400;}
+  .shadow-inset-green-b {box-shadow: inset 3px 3px 9px #009f00, -3px -3px 9px #00d700;}     .shadow-inset-green-c {box-shadow: inset 3px 3px 9px #00ad00, -3px -3px 9px #00eb00;}
+  .shadow-inset-green-d {box-shadow: inset 3px 3px 9px #00bc00, -3px -3px 9px #00fe00;}     .shadow-inset-green-e {box-shadow: inset 3px 3px 9px #00ca00, -3px -3px 9px #00ff00;}
+  .shadow-inset-green-f {box-shadow: inset 3px 3px 9px #00d900, -3px -3px 9px #00ff00;}     .shadow-inset-blue-a {box-shadow: inset 3px 3px 9px #000091, -3px -3px 9px #0000c4;}
+  .shadow-inset-blue-b {box-shadow: inset 3px 3px 9px #00009f, -3px -3px 9px #0000d7;}      .shadow-inset-blue-c {box-shadow: inset 3px 3px 9px #0000ad, -3px -3px 9px #0000eb;}
+  .shadow-inset-blue-d {box-shadow: inset 3px 3px 9px #0000bc, -3px -3px 9px #0000fe;}      .shadow-inset-blue-e {box-shadow: inset 3px 3px 9px #0000ca, -3px -3px 9px #0000ff;}
+  .shadow-inset-blue-f {box-shadow: inset 3px 3px 9px #0000d9, -3px -3px 9px #0000ff;}      .shadow-inset-yellow-a {box-shadow: inset 3px 3px 9px #919100, -3px -3px 9px #c4c400;}
+  .shadow-inset-yellow-b {box-shadow: inset 3px 3px 9px #9f9f00, -3px -3px 9px #d7d700;}    .shadow-inset-yellow-c {box-shadow: inset 3px 3px 9px #adad00, -3px -3px 9px #ebeb00;}
+  .shadow-inset-yellow-d {box-shadow: inset 3px 3px 9px #bcbc00, -3px -3px 9px #fefe00;}    .shadow-inset-yellow-e {box-shadow: inset 3px 3px 9px #caca00, -3px -3px 9px #ffff00;}
+  .shadow-inset-yellow-f {box-shadow: inset 3px 3px 9px #d9d900, -3px -3px 9px #ffff00;}    .shadow-inset-purple-a {box-shadow: inset 3px 3px 9px #910091, -3px -3px 9px #c400c4;}
+  .shadow-inset-purple-b {box-shadow: inset 3px 3px 9px #9f009f, -3px -3px 9px #d700d7;}    .shadow-inset-purple-c {box-shadow: inset 3px 3px 9px #ad00ad, -3px -3px 9px #eb00eb;}
+  .shadow-inset-purple-d {box-shadow: inset 3px 3px 9px #bc00bc, -3px -3px 9px #fe00fe;}    .shadow-inset-purple-e {box-shadow: inset 3px 3px 9px #ca00ca, -3px -3px 9px #ff00ff;}
+  .shadow-inset-purple-f {box-shadow: inset 3px 3px 9px #d900d9, -3px -3px 9px #ff00ff;}    .shadow-inset-cyan-a {box-shadow: inset 3px 3px 9px #009191, -3px -3px 9px #00c4c4;}
+  .shadow-inset-cyan-b {box-shadow: inset 3px 3px 9px #009f9f, -3px -3px 9px #00d7d7;}      .shadow-inset-cyan-c {box-shadow: inset 3px 3px 9px #00adad, -3px -3px 9px #00ebeb;}
+  .shadow-inset-cyan-d {box-shadow: inset 3px 3px 9px #00bcbc, -3px -3px 9px #00fefe;}      .shadow-inset-cyan-e {box-shadow: inset 3px 3px 9px #00caca, -3px -3px 9px #00ffff;}
+  .shadow-inset-cyan-f {box-shadow: inset 3px 3px 9px #00d9d9, -3px -3px 9px #00ffff;}
+
