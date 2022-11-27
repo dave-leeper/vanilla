@@ -10,6 +10,16 @@ class IncludeNode {
         this.children.push(node);
         return node;
     }
+    hasChild(name) {
+        let node = this.getChildByName(name);
+        return (null !== node); 
+    }
+    getChildByName(name) {
+        for (let node of this.children) {
+            if (node.name === name) { return node; }
+        }
+        return null;
+    }
     hasAncestor(ancestorName) {
         let node = this.getAncestor(ancestorName)
         return (null !== node)
@@ -69,7 +79,7 @@ class IncludeTree {
     }
 }
   
-  const loadIncludes = () => {
+const loadIncludes = () => {
     const _loadFile = (filename, callback) => {
         fetch(filename)
             .then(response => response.text())
