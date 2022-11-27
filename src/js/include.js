@@ -96,7 +96,7 @@ const loadIncludes = () => {
         let childNode = node.addChild(src);
         includeTree.addNode(node);
         if (node.hasAncestor(src)) {
-            console.error("Include tag causes infinite recursion. Include processing halted. filename: " + filename + ", src: " + src);
+            console.error("Include tag causes infinite recursion. Include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src);
             return;
         }
         _loadFile(include.attributes.src.value, function(text){
