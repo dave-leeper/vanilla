@@ -105,7 +105,51 @@ const loadIncludes = () => {
             _loadIncludes(includeTree);
         });
     }
+    const _loadVIncludes = (previousIncludeTree) => {
+        let includes = document.getElementsByTagName('v-include');
+        if (0 === includes.length) {return}
+        let includeTree = previousIncludeTree;
+        let include = includes[0];
+        let src = include.attributes?.src?.value;
+        let filename = include.attributes?.filename?.value;
+        let node = includeTree.hasNode(filename)? includeTree.getNodeByName(filename) : new IncludeNode(filename);
+        let childNode = node.addChild(src);
+        includeTree.addNode(node);
+        if (node.hasAncestor(src)) {
+            console.error("Include tag causes infinite recursion. Include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src);
+            return;
+        }
+        _loadFile(include.attributes.src.value, function(text){
+            var frag = document.createDocumentFragment();
+            frag.append(...new DOMParser().parseFromString(text, "text/html").body.childNodes);
+            const scripts = frag.querySelectorAll("script")
+            const styles = frag.querySelectorAll("style")
+            const markup = frag.querySelectorAll("markup")
+            console.log(text)
+            console.log(`scripts.length: ${scripts.length} styles.length: ${styles.length} markup.length: ${markup.length}`)
+            console.log(`scripts[0] ${scripts[0].innerText}`)
+            console.log(`styles[0] ${styles[0].innerText}`)
+            console.log(`markup[0] ${markup[0].innerText}`)
+            try {
+                var script_tag = document.createElement('script');
+                script_tag.type = 'text/javascript';
+                script_tag.appendChild(document.createTextNode(scripts[0].innerText));
+                frag.appendChild(script_tag);
+            } catch (e) {
+                console.error(`Failed to create script node.`);
+            }
+            include.after(frag);
+            for (let scriptNode of scripts){
+                scriptNode.remove()
+            }
+            //eval(scripts[0].innerText);
+            //include.insertAdjacentHTML('afterend', text);
+            include.remove();
+            _loadVIncludes(includeTree);
+        });
+    }
     _loadIncludes(new IncludeTree());
+    _loadVIncludes(new IncludeTree());
 }
 
 document.addEventListener("DOMContentLoaded", loadIncludes);
