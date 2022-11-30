@@ -93,7 +93,6 @@ const loadIncludes = () => {
         let src = include.attributes?.src?.value;
         let filename = include.attributes?.filename?.value;
         let node = includeTree.hasNode(filename)? includeTree.getNodeByName(filename) : new IncludeNode(filename);
-        let childNode = node.addChild(src);
         includeTree.addNode(node);
         if (node.hasAncestor(src)) {
             console.error("Include tag causes infinite recursion. Include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src);
@@ -112,15 +111,30 @@ const loadIncludes = () => {
         let include = includes[0];
         let src = include.attributes?.src?.value;
         let filename = include.attributes?.filename?.value;
+        let component = include.attributes?.component?.value;
+
+        if (!src) {
+            console.error("V-include missing required attribute 'src'. V-include processing halted. File containg the bad include tag: " + filename + ".");
+            return;
+        }
+        if (!filename) {
+            console.error("V-include missing required attribute 'filename'. V-include processing halted. Include file causing recursion: " + src);
+            return;
+        }
+        if (!component) {
+            console.error("V-include missing required attribute 'component'. V-include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src + ".");
+            return;
+        }
         let node = includeTree.hasNode(filename)? includeTree.getNodeByName(filename) : new IncludeNode(filename);
         let childNode = node.addChild(src);
         includeTree.addNode(node);
         if (node.hasAncestor(src)) {
-            console.error("Include tag causes infinite recursion. Include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src);
+            console.error("V-include tag causes infinite recursion. V-include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src + ".");
             return;
         }
         _loadFile(include.attributes.src.value, function(text){
             var frag = document.createDocumentFragment();
+
             frag.append(...new DOMParser().parseFromString(text, "text/html").body.childNodes);
             const scripts = frag.querySelectorAll("script")
             try {
@@ -129,13 +143,21 @@ const loadIncludes = () => {
                 script_tag.appendChild(document.createTextNode(scripts[0].innerText));
                 frag.appendChild(script_tag);
             } catch (e) {
-                console.error(`Include tag failed to create script node.`);
+                console.error(`V-include tag failed to create script node.`);
+                return;
             }
             include.after(frag);
             for (let scriptNode of scripts){
                 scriptNode.remove()
             }
             include.remove();
+            let componentObject = eval(` new ${component}()`);
+            if (!componentObject) {
+                console.error("Failed to create component. V-include processing halted. Component name: " + component + ". File containg the bad include tag: " + filename + ". Include file causing recursion: " + src + ".");
+                return;
+            }
+            componentObject.initialize();
+            componentObject.afterMount();
             _loadVIncludes(includeTree);
         });
     }

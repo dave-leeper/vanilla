@@ -124,6 +124,11 @@
   .cursor-se-resize {cursor: se-resize;}        .cursor-sw-resize {cursor: sw-resize;}        .cursor-ew-resize {cursor: ew-resize;}    .cursor-ns-resize {cursor: ns-resize;}
   .cursor-nesw-resize {cursor: nesw-resize;}    .cursor-nwse-resize {cursor: nwse-resize;}   .cursor-zoom-in {cursor: zoom-in;}        .cursor-zoom-out {cursor: zoom-out;}
 
+  .rotate-45 {rotate: 45deg;}       .rotate-90 {rotate: 90deg;}      .rotate-135 {rotate: 135deg;}     .rotate-180 {rotate: 180deg;}    .rotate-225 {rotate: 225deg;}
+  .rotate-270 {rotate: 270deg;}     .rotate-315 {rotate: 315deg;}    .rotate-360 {rotate: 360deg;}
+  .rotate-counter-45 {rotate: -45deg;}       .rotate-counter-90 {rotate: -90deg;}      .rotate-counter-135 {rotate: -135deg;}     .rotate-counter-180 {rotate: -180deg;}    .rotate-counter-225 {rotate: -225deg;}
+  .rotate-counter-270 {rotate: -270deg;}     .rotate-counter-315 {rotate: -315deg;}    .rotate-counter-360 {rotate: -360deg;}
+  
   .w5 {width: 5%}           .w10 {width: 10%;}        .w20 {width: 20%;}        .w25 {width: 25%;}
   .w30 {width: 30%;}        .w33 {width: 33.33%;}     .w40 {width: 40%;}        .w50 {width: 50%;}
   .w60 {width: 60%;}        .w66 {width: 66.66%;}     .w70 {width: 70%;}        .w75 {width: 66%;}

@@ -1,5 +1,10 @@
 <v-component>
     <script>
+        class Button {
+            initialize() { console.log(`Initialize.`)}
+            beforeMount() { console.log(`Before mount.`)}
+            afterMount() { console.log(`After mount.`)}
+        }
         const ddd = function() { alert(`clickity clackity`); }
     </script>
     <style>
