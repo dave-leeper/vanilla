@@ -136,6 +136,20 @@ const loadIncludes = () => {
             _replaceNodeValue(child, vars, member)
         }
     }
+    const _replaceAttributeValue = (node, vars, member) => {
+        if (node.attributes) {
+            for (const attr of node.attributes) {
+                if (!attr.originalAttributeValue) { attr.originalAttributeValue = attr.value }
+                const matches = attr.originalAttributeValue.match(/[^{]+(?=\})/g)
+                if (matches && matches.includes(member)) {
+                    attr.value = attr.originalAttributeValue.replaceAll(`{${member}}`, vars[member])
+                }
+            }
+        }
+        for (let child of node.childNodes) {
+            _replaceAttributeValue(child, vars, member)
+        }
+    }
     const _wrapVars = (componentObject, fragment) => {
         let members = Object.getOwnPropertyNames(componentObject.vars);
 
@@ -148,9 +162,11 @@ const loadIncludes = () => {
                 set: function(newValue) {
                     componentObject.vars.___varsStore___[member] = newValue;
                     _replaceNodeValue(fragment, componentObject.vars, member)
+                    _replaceAttributeValue(fragment, componentObject.vars, member)
                 }
             })
             _replaceNodeValue(fragment, componentObject.vars, member)
+            _replaceAttributeValue(fragment, componentObject.vars, member)
         }
     }
     const _loadVIncludes = (previousIncludeTree) => {

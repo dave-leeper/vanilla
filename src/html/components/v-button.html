@@ -6,14 +6,16 @@
             afterMount() { console.log(`After mount.`)}
             vars = {
                 x: "Button",
-                y: "y"
+                y: "Y"
             }
         }
-        const ddd = function() { alert(`clickity clackity`); }
+        const ddd = function() { 
+            alert(`clickity clackity`);
+        }
     </script>
     <style>
     </style>
     <markup>
-        <button onclick="ddd()">{x}</button>
+        <button id="v-button" name="{y}" onclick="ddd()">{x}</button>
     </markup>
 </v-component>
