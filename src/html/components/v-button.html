@@ -4,12 +4,16 @@
             initialize() { console.log(`Initialize.`)}
             beforeMount() { console.log(`Before mount.`)}
             afterMount() { console.log(`After mount.`)}
+            vars = {
+                x: "Button",
+                y: "y"
+            }
         }
         const ddd = function() { alert(`clickity clackity`); }
     </script>
     <style>
     </style>
     <markup>
-        <button onclick="ddd()">Button</button>
+        <button onclick="ddd()">{x}</button>
     </markup>
 </v-component>

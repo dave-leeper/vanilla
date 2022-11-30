@@ -104,27 +104,62 @@ const loadIncludes = () => {
             _loadIncludes(includeTree);
         });
     }
+    const _validateVIncudeAttributes = (attributes) => {
+        let src = attributes?.src?.value;
+        let filename = attributes?.filename?.value;
+        let component = attributes?.component?.value;
+
+        if (!src) {
+            console.error("V-include missing required attribute 'src'. V-include processing halted. File containg the bad include tag: " + filename + ".");
+            return false;
+        }
+        if (!filename) {
+            console.error("V-include missing required attribute 'filename'. V-include processing halted. Include file causing recursion: " + src);
+            return false;
+        }
+        if (!component) {
+            console.error("V-include missing required attribute 'component'. V-include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src + ".");
+            return false;
+        }
+        return [src, filename, component]
+    };
+    const _replaceNodeValue = (node, vars, member) => {
+        if (node.nodeValue) {
+            if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
+
+            const matches = node.originalNodeValue.match(/[^{]+(?=\})/g)
+            if (matches && matches.includes(member)) {
+                node.nodeValue = node.originalNodeValue.replaceAll(`{${member}}`, vars[member])
+            }
+        }
+        for (let child of node.childNodes) {
+            _replaceNodeValue(child, vars, member)
+        }
+    }
+    const _wrapVars = (componentObject, fragment) => {
+        let members = Object.getOwnPropertyNames(componentObject.vars);
+
+        componentObject.vars.___varsStore___ = {...componentObject.vars}
+        for (let member of members) {
+            Object.defineProperty(componentObject.vars, member, {
+                get: function() {
+                    return componentObject.vars.___varsStore___[member];
+                },
+                set: function(newValue) {
+                    componentObject.vars.___varsStore___[member] = newValue;
+                    _replaceNodeValue(fragment, componentObject.vars, member)
+                }
+            })
+            _replaceNodeValue(fragment, componentObject.vars, member)
+        }
+    }
     const _loadVIncludes = (previousIncludeTree) => {
         let includes = document.getElementsByTagName('v-include');
         if (0 === includes.length) {return}
         let includeTree = previousIncludeTree;
         let include = includes[0];
-        let src = include.attributes?.src?.value;
-        let filename = include.attributes?.filename?.value;
-        let component = include.attributes?.component?.value;
-
-        if (!src) {
-            console.error("V-include missing required attribute 'src'. V-include processing halted. File containg the bad include tag: " + filename + ".");
-            return;
-        }
-        if (!filename) {
-            console.error("V-include missing required attribute 'filename'. V-include processing halted. Include file causing recursion: " + src);
-            return;
-        }
-        if (!component) {
-            console.error("V-include missing required attribute 'component'. V-include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src + ".");
-            return;
-        }
+        let [src, filename, component] = _validateVIncudeAttributes(include.attributes)
+        if (!src || !filename || !component) {return}
         let node = includeTree.hasNode(filename)? includeTree.getNodeByName(filename) : new IncludeNode(filename);
         let childNode = node.addChild(src);
         includeTree.addNode(node);
@@ -141,22 +176,26 @@ const loadIncludes = () => {
                 var script_tag = document.createElement('script');
                 script_tag.type = 'text/javascript';
                 script_tag.appendChild(document.createTextNode(scripts[0].innerText));
-                frag.appendChild(script_tag);
+                include.after(script_tag);
             } catch (e) {
                 console.error(`V-include tag failed to create script node.`);
                 return;
             }
-            include.after(frag);
             for (let scriptNode of scripts){
                 scriptNode.remove()
             }
-            include.remove();
             let componentObject = eval(` new ${component}()`);
             if (!componentObject) {
                 console.error("Failed to create component. V-include processing halted. Component name: " + component + ". File containg the bad include tag: " + filename + ". Include file causing recursion: " + src + ".");
                 return;
             }
+            _wrapVars(componentObject, frag)
+            componentObject.vars.x="New X";
+            
             componentObject.initialize();
+            componentObject.beforeMount();
+            include.after(frag);
+            include.remove();
             componentObject.afterMount();
             _loadVIncludes(includeTree);
         });
