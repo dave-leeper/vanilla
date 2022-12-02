@@ -124,44 +124,60 @@ const loadIncludes = () => {
         }
         return [src, filename, component, id]
     };
-    const _replaceNodeValue = (node, vars, member) => {
+    const _replaceNodeValue = (node, data, member) => {
         if (node.nodeValue) {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
 
             const matches = node.originalNodeValue.match(/[^{]+(?=\})/g)
             if (matches && matches.includes(member)) {
-                node.nodeValue = node.originalNodeValue.replaceAll(`{${member}}`, vars[member])
+                node.nodeValue = node.originalNodeValue.replaceAll(`{${member}}`, data[member])
             }
         }
         for (let child of node.childNodes) {
-            _replaceNodeValue(child, vars, member)
+            _replaceNodeValue(child, data, member)
         }
     }
-    const _replaceAttributeValue = (node, vars, member) => {
+    const _replaceAttributeValue = (node, data, member) => {
         if (node.attributes) {
             for (const attr of node.attributes) {
                 if (!attr.originalAttributeValue) { attr.originalAttributeValue = attr.value }
                 const matches = attr.originalAttributeValue.match(/[^{]+(?=\})/g)
                 if (matches && matches.includes(member)) {
-                    attr.value = attr.originalAttributeValue.replaceAll(`{${member}}`, vars[member])
+                    attr.value = attr.originalAttributeValue.replaceAll(`{${member}}`, data[member])
                 }
             }
         }
         for (let child of node.childNodes) {
-            _replaceAttributeValue(child, vars, member)
+            _replaceAttributeValue(child, data, member)
+        }
+    }
+    const _wrapProps = (componentObject, fragment) => {
+        let members = Object.getOwnPropertyNames(componentObject.props);
+
+        componentObject.props.$propsStore = {...componentObject.props}
+        for (let member of members) {
+            Object.defineProperty(componentObject.props, member, {
+                get: function() {
+                    return componentObject.props.$propsStore[member];
+                },
+                set: function(newValue) {
+                }
+            })
+            _replaceNodeValue(fragment, componentObject.props, member)
+            _replaceAttributeValue(fragment, componentObject.props, member)
         }
     }
     const _wrapVars = (componentObject, fragment) => {
         let members = Object.getOwnPropertyNames(componentObject.vars);
 
-        componentObject.vars.___varsStore___ = {...componentObject.vars}
+        componentObject.vars.$varsStore = {...componentObject.vars}
         for (let member of members) {
             Object.defineProperty(componentObject.vars, member, {
                 get: function() {
-                    return componentObject.vars.___varsStore___[member];
+                    return componentObject.vars.$varsStore[member];
                 },
                 set: function(newValue) {
-                    componentObject.vars.___varsStore___[member] = newValue;
+                    componentObject.vars.$varsStore[member] = newValue;
                     _replaceNodeValue(fragment, componentObject.vars, member)
                     _replaceAttributeValue(fragment, componentObject.vars, member)
                 }
@@ -172,10 +188,10 @@ const loadIncludes = () => {
     }
     const _registerComponent = (id, componentObject) => {
         if (!id) { return false }
-        if (!document.___vanilla___) { document.___vanilla___ = {} }
-        if (!document.___vanilla___.registry) { document.___vanilla___.registry = new Map(); }
-        document.___vanilla___.registry.set(id, componentObject)
-        const button = document.___vanilla___.registry.get(id)
+        if (!document.$vanilla) { document.$vanilla = {} }
+        if (!document.$vanilla.registry) { document.$vanilla.registry = new Map(); }
+        document.$vanilla.registry.set(id, componentObject)
+        const button = document.$vanilla.registry.get(id)
         return true
     }
     const _loadVIncludes = (previousIncludeTree) => {
@@ -183,10 +199,9 @@ const loadIncludes = () => {
         if (0 === includes.length) {return}
         let includeTree = previousIncludeTree;
         let include = includes[0];
-        let [src, filename, component, id] = _validateVIncudeAttributes(include.attributes)
+        let [src, filename, component, id, repeat] = _validateVIncudeAttributes(include.attributes)
         if (!src || !filename || !component) {return}
         let node = includeTree.hasNode(filename)? includeTree.getNodeByName(filename) : new IncludeNode(filename);
-        let childNode = node.addChild(src);
         includeTree.addNode(node);
         if (node.hasAncestor(src)) {
             console.error("V-include tag causes infinite recursion. V-include processing halted. File containg the bad include tag: " + filename + ". Include file causing recursion: " + src + ".");
@@ -209,6 +224,7 @@ const loadIncludes = () => {
             for (let scriptNode of scripts){
                 scriptNode.remove()
             }
+            
             let componentObject = eval(` new ${component}()`);
             if (!componentObject) {
                 console.error("Failed to create component. V-include processing halted. Component name: " + component + ". File containg the bad include tag: " + filename + ". Include file causing recursion: " + src + ".");
@@ -216,12 +232,13 @@ const loadIncludes = () => {
             }
             _registerComponent(id, componentObject)
             _wrapVars(componentObject, frag)
-            
+            _wrapProps(componentObject, frag)
             componentObject.initialize();
             componentObject.beforeMount();
-            include.after(frag);
+            include.after();
             include.remove();
             componentObject.afterMount();
+            
             _loadVIncludes(includeTree);
         });
     }
