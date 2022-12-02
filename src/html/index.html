@@ -13,8 +13,15 @@
     <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
    <title>Vanilla</title>
     <script src="../js/include.js"></script>
-    <script src="https://kit.fontawesome.com/8de74b7700.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="../css/styles.css">
+    <script>
+      function setCSSDefaults() {
+        const r = document.querySelector(':root')
+        r.style.setProperty('--primary-font-family', 'TimesNewRoman, "Times New Roman", Times, Baskerville, Georgia, serif');
+        r.style.setProperty('--secondary-font-family', '"HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif');
+      }
+      setCSSDefaults()
+    </script>
   </head>
   <body>
     <include src="./header.html" filename="./index.html"></include>
