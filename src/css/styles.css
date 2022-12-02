@@ -32,7 +32,8 @@
     --primary-color: var(--blue-a);           --secondary-color: var(--grey-c);           --background-color: var(--grey-e);
     --error-color: var(--red-e);              --warn-color: var(--yellow-e);              --info-color: var(--cyan-f);
     --primary-text-color: var(--black);       --secondary-text-color: var(--grey-8);
-    --primary-font-family: Arial, Helvetica, sans-serif;      --secondary-font-family: Georgia, Times, "Times New Roman", serif;
+    --primary-font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    --secondary-font-family: Georgia, Times, "Times New Roman", serif;
 
     --header-1-font-size: 3rem;         --header-1-font-weight: 700;        --header-1-text-color: var(--primary-text-color);
     --header-2-font-size: 2.75rem;      --header-2-font-weight: 700;        --header-2-text-color: var(--primary-text-color);
