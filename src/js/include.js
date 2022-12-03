@@ -234,11 +234,13 @@ const loadIncludes = () => {
         let includeTree = previousIncludeTree
         let include = includes[0]
         let src = include.attributes?.src?.value
-        let thisfile = include.attributes?.thisfile?.value
-        let node = includeTree.hasNode(thisfile)? includeTree.getNodeByName(thisfile) : new IncludeNode(thisfile)
+        let includeId = include.attributes[`include-id`]?.value
+        let node = includeTree.hasNode(includeId)? includeTree.getNodeByName(includeId) : new IncludeNode(includeId)
         includeTree.addNode(node)
+        includeTree.toString(``)
+        console.log(`includeId ${includeId} src ${src} node.hasAncestor(src) ${node.hasAncestor(src)}`)
         if (node.hasAncestor(src)) {
-            console.error(`Include tag causes infinite recursion. Include processing halted. File containg the bad include tag: ${thisfile}. Include file causing recursion: ${src}.`)
+            console.error(`Include tag causes infinite recursion. Include processing halted. Id of the bad include tag: ${includeId}. Include file causing recursion: ${src}.`)
             return
         }
         loadFile(include.attributes.src.value, function(text){
@@ -253,44 +255,45 @@ const loadIncludes = () => {
 const loadIncludeComponents = () => {
     const _validateIncudeComponentAttributes = (attributes) => {
         if (!attributes) {
-            console.error(`Include-component missing required attributes 'src', 'thisfile', 'component', and 'component-id'. Include-component processing halted.`)
+            console.error(`Include-component missing required attributes 'src', 'component-id', 'component', and 'component-id'. Include-component processing halted.`)
             return false
         }
 
         let src = attributes.src?.value
-        let thisfile = attributes.thisfile?.value
+        let componentId = attributes[`component-id`].value
         let component = attributes.component?.value
         let id = attributes[`component-id`].value
 
         if (!src) {
-            console.error(`Include-component missing required attribute 'src'. Include-component processing halted. File containing the bad include tag: ${thisfile}.`)
+            console.error(`Include-component missing required attribute 'src'. Include-component processing halted. Id of the the bad include-component tag: ${componentId}.`)
             return false
         }
-        if (!thisfile) {
-            console.error(`Include-component missing required attribute 'thisfile'. Include-component processing halted. Include file causing recursion: ${src}.`)
+        if (!componentId) {
+            console.error(`Include-component missing required attribute 'componentId'. Include-component processing halted. Include file causing recursion: ${src}.`)
             return false
         }
         if (!component) {
-            console.error(`Include-component missing required attribute 'component'. Include-component processing halted. File containing the bad include tag: ${thisfile}. Include file causing recursion: ${src}.`)
+            console.error(`Include-component missing required attribute 'component'. Include-component processing halted. Id of the bad include-component tag: ${componentId}. Include file causing recursion: ${src}.`)
             return false
         }
         if (!id) {
-            console.error(`Include-component missing required attribute 'component-id'. Include-component processing halted. File containing the bad include tag: ${thisfile}. Include file causing recursion: ${src}.`)
+            console.error(`Include-component missing required attribute 'component-id'. Include-component processing halted. Id of the bad include-component tag: ${componentId}. Include file causing recursion: ${src}.`)
             return false
         }
-        return [src, thisfile, component, id]
+        return [src, componentId, component]
     }
     const _loadIncludeComponents = (previousIncludeTree) => {
         let includes = document.getElementsByTagName('include-component')
         if (0 === includes.length) {return}
         let includeTree = previousIncludeTree
         let include = includes[0]
-        let [src, thisfile, component, id, repeat] = _validateIncudeComponentAttributes(include.attributes)
-        if (!src || !thisfile || !component) {return}
-        let node = includeTree.hasNode(thisfile)? includeTree.getNodeByName(thisfile) : new IncludeNode(thisfile)
+        let [src, componentId, component, repeat] = _validateIncudeComponentAttributes(include.attributes)
+        if (!src || !componentId || !component) {return}
+        let node = includeTree.hasNode(componentId)? includeTree.getNodeByName(componentId) : new IncludeNode(componentId)
         includeTree.addNode(node)
+        includeTree.toString(``)
         if (node.hasAncestor(src)) {
-            console.error(`Include-component tag causes infinite recursion. Include-component processing halted. File containing the bad include tag: ${thisfile}. Include file causing recursion: ${src}.`)
+            console.error(`Include-component tag causes infinite recursion. Include-component processing halted. Id of the bad include-component tag: ${componentId}. Include file causing recursion: ${src}.`)
             return
         }
         loadFile(include.attributes.src.value, function(text){
@@ -317,7 +320,7 @@ const loadIncludeComponents = () => {
             
             let componentObject = eval(` new ${component}()`)
             if (!componentObject) {
-                console.error(`Failed to create component. Include-component processing halted. Component name: ${component}. File containing the bad include tag: ${thisfile}. Include file causing recursion: ${src}.`)
+                console.error(`Failed to create component. Include-component processing halted. Component name: ${component}. Id of the bad include tag: ${componentId}. Include file causing recursion: ${src}.`)
                 return
             }
             componentObject.initialize()
@@ -325,12 +328,12 @@ const loadIncludeComponents = () => {
             VanillaComponent.wrapProps(componentObject, frag)
             componentObject.beforeMount()
             let marker = document.createElement('script')
-            marker.id = `-VanillaComponent${id}`
+            marker.id = `-VanillaComponent${componentId}`
             marker.type = 'text/javascript'
             include.after(marker)
             const nodes = VanillaComponent.unpackFragment(frag, marker)
         
-            VanillaComponent.registerComponent(id, componentObject, nodes)
+            VanillaComponent.registerComponent(componentId, componentObject, nodes)
             componentObject.afterMount()
             include.remove()
 
