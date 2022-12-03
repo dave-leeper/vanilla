@@ -142,7 +142,29 @@ class VanillaComponent {
             VanillaComponent.replaceAttributeValue(fragment, componentObject.vars, member)
         }
     }
-    static registerComponent = (id, componentObject) => {
+    static unpackFragment = (fragment, marker) => {
+        const parent = marker.parentNode
+        marker.after(fragment)
+        const markup = parent.getElementsByTagName("markup");
+        const style = parent.getElementsByTagName("style");
+        if (!markup || 0 === markup.length) {
+            console.error(`Failed to register component. Could not find markup tag.`)
+            return
+        }
+        let nodes = []
+        const length = markup[0].children.length
+        for (let loop = length - 1; loop >= 0; loop--) {
+            const node = markup[0].children[loop]
+            nodes.push(node)
+            marker.after(node)
+        }
+        if (style && 0 < style.length) {
+            marker.before(style[0])
+        }
+        markup[0].remove()
+        return nodes.reverse()
+    }
+    static registerComponent = (id, componentObject, nodes) => {
         if (!id) { return false }
         if (!document.$vanilla) { document.$vanilla = {} }
         if (!document.$vanilla.registry) { document.$vanilla.registry = new Map() }
@@ -151,7 +173,7 @@ class VanillaComponent {
             console.error(`Failed to register component. Could not find ${id}.`)
             return
         }
-        document.$vanilla.registry.set(id, {componentObject, node})
+        document.$vanilla.registry.set(id, {componentObject, nodes})
         return true
     }
     static mountComponent = (id) => {
@@ -166,13 +188,16 @@ class VanillaComponent {
             return
         }
         componentInfo.componentObject.beforeMount()
-        if (marker.nextSibling){ 
-            marker.parentNode.insertBefore(componentInfo.node, marker.nextSibling);
-            console.log(`insertBefore`)
-        } else {
-            marker.parentNode.appendChild(componentInfo.node);
-            console.log(`appendChild`)
-
+        const length = componentInfo.nodes.length
+        for (let loop = length - 1; loop >= 0; loop--) {
+            const node = componentInfo.nodes[loop]
+            if (marker.nextSibling){ 
+                marker.parentNode.insertBefore(node, marker.nextSibling);
+                console.log(`insertBefore`)
+            } else {
+                marker.parentNode.appendChild(node);
+                console.log(`appendChild`)
+            }
         }
         componentInfo.componentObject.afterMount()
     }
@@ -188,7 +213,11 @@ class VanillaComponent {
             return
         }
         componentInfo.componentObject.beforeUnmount()
-        marker.parentNode.removeChild( marker.nextSibling );
+        const length = componentInfo.nodes.length
+        for (let loop = length - 1; loop >= 0; loop--) {
+            const node = componentInfo.nodes[loop]
+            marker.parentNode.removeChild( node );
+        }
         componentInfo.componentObject.afterUnmount()
     }
 }
@@ -287,13 +316,14 @@ const loadVIncludes = () => {
             VanillaComponent.wrapVars(componentObject, frag)
             VanillaComponent.wrapProps(componentObject, frag)
             componentObject.beforeMount()
-            include.after(frag)
             let marker = document.createElement('script')
             marker.id = `-VanillaComponent${id}`
             marker.type = 'text/javascript'
             include.after(marker)
+            const nodes = VanillaComponent.unpackFragment(frag, marker)
+
             
-            VanillaComponent.registerComponent(id, componentObject)
+            VanillaComponent.registerComponent(id, componentObject, nodes)
             componentObject.afterMount()
             include.remove()
 
