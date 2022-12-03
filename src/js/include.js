@@ -168,8 +168,9 @@ class VanillaComponent {
         if (!id) { return false }
         if (!document.$vanilla) { document.$vanilla = {} }
         if (!document.$vanilla.registry) { document.$vanilla.registry = new Map() }
-        const node = document.getElementById(id)
-        if (!node) {
+        ;
+        const node = document.querySelectorAll(`[component-id="${id}"]`)
+        if (!node || 0 === node.length) {
             console.error(`Failed to register component. Could not find ${id}.`)
             return
         }
@@ -251,10 +252,15 @@ const loadIncludes = () => {
 
 const loadIncludeComponents = () => {
     const _validateIncudeComponentAttributes = (attributes) => {
-        let src = attributes?.src?.value
-        let thisfile = attributes?.thisfile?.value
-        let component = attributes?.component?.value
-        let id = attributes?.id?.value
+        if (!attributes) {
+            console.error(`Include-component missing required attributes 'src', 'thisfile', 'component', and 'component-id'. Include-component processing halted.`)
+            return false
+        }
+
+        let src = attributes.src?.value
+        let thisfile = attributes.thisfile?.value
+        let component = attributes.component?.value
+        let id = attributes[`component-id`].value
 
         if (!src) {
             console.error(`Include-component missing required attribute 'src'. Include-component processing halted. File containing the bad include tag: ${thisfile}.`)
@@ -266,6 +272,10 @@ const loadIncludeComponents = () => {
         }
         if (!component) {
             console.error(`Include-component missing required attribute 'component'. Include-component processing halted. File containing the bad include tag: ${thisfile}. Include file causing recursion: ${src}.`)
+            return false
+        }
+        if (!id) {
+            console.error(`Include-component missing required attribute 'component-id'. Include-component processing halted. File containing the bad include tag: ${thisfile}. Include file causing recursion: ${src}.`)
             return false
         }
         return [src, thisfile, component, id]
@@ -295,7 +305,7 @@ const loadIncludeComponents = () => {
                 script_tag.appendChild(document.createTextNode(scripts[0].innerText))
                 include.after(script_tag)
             } catch (e) {
-                console.error(`INCLUDE-component tag failed to create script node.`)
+                console.error(`Include-component tag failed to create script node.`)
                 return
             }
             for (let scriptNode of scripts){
