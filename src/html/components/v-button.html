@@ -1,26 +1,35 @@
-<v-component>
+<component>
     <script>
-        class Button {
+        class Button{
+            className(){return this.constructor.name}
             initialize() { console.log(`Initialize.`)}
             beforeMount() { console.log(`Before mount.`)}
             afterMount() { console.log(`After mount.`)}
+            beforeUnmount() { console.log(`Before unmount.`)}
+            afterUnmount() { console.log(`After unmount.`)}
             vars = {
-                x: "Button",
-                y: "Y"
+                x: `Button`,
+                y: `Y`
             }
             props = {
-                prop1: "value1",
-                prop2: "value2"
+                prop1: `value1`,
+                prop2: `value2`
             }
         }
         const ddd = function() { 
             alert(`clickity clackity`);
             let button =  document.$vanilla.registry.get(`Button1`)
-            console.log(button.props.prop1)
-            button.props.prop1 = "Should not assign a value to the prop"
-            console.log(button.props.prop1)
+            console.log(button.componentObject.props.prop1)
+            button.componentObject.props.prop1 = `Should not assign a value to the prop`
+            console.log(button.componentObject.props.prop1)
+            console.log(button.componentObject.className())
+            VanillaComponent.unmountComponent(`Button1`)
+            VanillaComponent.mountComponent(`Button1`)
         }
     </script>
+    <test>
+
+    </test>
     <style>
         .buttonStyle {
             color: green;
@@ -29,5 +38,10 @@
     </style>
     <markup>
         <button name="{y}" class="buttonStyle" onclick="ddd()">{x}</button>
+        <div>TEXT1</div>
+        <div>
+            TEXT2
+            <div>TEXT3</div>
+        </div>
     </markup>
-</v-component>
+</component>
