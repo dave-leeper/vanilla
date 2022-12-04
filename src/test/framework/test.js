@@ -4,10 +4,10 @@ const assert = (isTrue, optionalDescription) => {
   }
 }
 
-const it = (name, description, tests) => {
+const test = (name, description, tests) => {
   let results = []
 
-  results.push(`\t${name} ${description}`)
+  results.push(`\tTest: ${name} ${description}`)
   try {
     for (let loop = 0; loop < tests.length; loop++) {
       tests[loop]()
@@ -20,8 +20,11 @@ const it = (name, description, tests) => {
 }
 
 const suite = (name, description, testResults) => {
-  console.log(`${name} ${description}`)
+  console.log(`Suite: ${name} ${description}`)
   for (let loop = 0; loop < testResults.length; loop++) {
-    console.log(testResults[loop])
+    let results = testResults[loop]
+    for (let loop2 = 0; loop2 < results.length; loop2++) {
+      console.log(results[loop2])
+    }
   }
 }

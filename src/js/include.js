@@ -42,10 +42,11 @@ class IncludeNode {
         return null
     }
     toString(prefix) {
-        let result = `${prefix}${this.name} (parent: ${this.parent?.name})\n`
-        prefix += `\t`
+        let cleanPrefix = (prefix)? prefix : ``
+        let result = `${cleanPrefix}${this.name} (parent: ${this.parent?.name})\n`
+        cleanPrefix += `\t`
         for (let node of this.children) {
-            result += node.toString(prefix)
+            result += node.toString(cleanPrefix)
         }
         return result
     }
@@ -238,7 +239,6 @@ const loadIncludes = () => {
         let node = includeTree.hasNode(includeId)? includeTree.getNodeByName(includeId) : new IncludeNode(includeId)
         includeTree.addNode(node)
         includeTree.toString(``)
-        console.log(`includeId ${includeId} src ${src} node.hasAncestor(src) ${node.hasAncestor(src)}`)
         if (node.hasAncestor(src)) {
             console.error(`Include tag causes infinite recursion. Include processing halted. Id of the bad include tag: ${includeId}. Include file causing recursion: ${src}.`)
             return
