@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
     test (`Create`, `Ensure that IncludeNode objects can be properly created.`, [() => {
         const includeNode = new IncludeNode(`TestIncludeNode`)
@@ -81,4 +82,4 @@ suite(`Test IncludeTree`, `Ensure IncludeTree is working.`, [
                                                                             `includeTree can return node object by name.`)
     }]),
 ])
-
+})
