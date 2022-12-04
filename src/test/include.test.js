@@ -80,6 +80,8 @@ suite(`Test IncludeTree`, `Ensure IncludeTree is working.`, [
         assert(includeTree.hasNode(`TestIncludeNode`),                      `includeTree has node TestIncludeNode.`)
         assert(includeTree.getNodeByName(`TestIncludeNode`).name === `TestIncludeNode`,
                                                                             `includeTree can return node object by name.`)
+        // assert(false,                                                       `intentional fail.`)
+
     }]),
 ])
 })

@@ -57,9 +57,9 @@
     background-color: var(--background-color);
   }
 
-  .flex-row {display: flex; flex-direction: row;}
-  .flex-col {display: flex; flex-direction: column;}
+  .flex-row {display: flex; flex-direction: row;}         .flex-col {display: flex; flex-direction: column;}
 
+  .flex-wrap {flex-wrap: wrap;}                 .flex-wrap-reverse {flex-wrap: wrap-reverse;}                 .flex-wrap-none {flex-wrap: nowrap;};
   .flex-grow-1 {flex-grow: 1;}        .flex-grow-2 {flex-grow: 2;}        .flex-grow-3 {flex-grow: 3;}        .flex-grow-4 {flex-grow: 4;}
   .flex-grow-5 {flex-grow: 5;}        .flex-grow-6 {flex-grow: 6;}        .flex-grow-7 {flex-grow: 7;}        .flex-grow-8 {flex-grow: 8;}
   .flex-grow-9 {flex-grow: 9;}        .flex-grow-10 {flex-grow: 10;}      .flex-grow-11 {flex-grow: 11;}      .flex-grow-12 {flex-grow: 12;}
@@ -75,6 +75,10 @@
   .flex-align-center {align-items: center;}
   .flex-align-stretch {align-items: stretch;}
   .flex-align-baseline {align-items: baseline;}
+
+  .columns-2 {columns: 2;}      .columns-3 {columns: 3;}      .columns-4 {columns: 4;}          .columns-5 {columns: 5;}          .columns-6 {columns: 6;}
+  .columns-7 {columns: 7;}      .columns-8 {columns: 8;}      .columns-9 {columns: 9;}          .columns-10 {columns: 10;}        .columns-11 {columns: 11;}
+  .columns-12 {columns: 12;}    .column-span-all {column-span: all;}                            .column-span-none {column-span: none;}
 
   .header-1 {font-family: var(--primary-font-family);         font-size: var(--header-1-font-size);     font-weight: var(--header-1-font-weight);     color: var(--header-1-text-color);}
   .header-2 {font-family: var(--primary-font-family);         font-size: var(--header-2-font-size);     font-weight: var(--header-2-font-weight);     color: var(--header-2-text-color);}
@@ -93,9 +97,14 @@
   .absolute {position: absolute;}
 
   .overflow-hidden {overflow: hidden;}
+  .overflow-visible {overflow: visible;}
+  .overflow-scroll {overflow: scroll;}
+  .overflow-auto {overflow: auto;}
+
   .center-text {text-align: center;}
   .left-align-text {text-align: left;}
   .right-align-text {text-align: right;}
+
   .center-img {
     display: block;
     margin-left: auto;
@@ -139,7 +148,10 @@
   .w40px {width: 40px;}     .w45px {width: 45px;}     .w50px {width: 50px;}     .w55px {width: 55px;}
   .w60px {width: 60px;}     .w65px {width: 65px;}     .w66px {width: 66px;}     .w70px {width: 70px;}
   .w75px {width: 66px;}     .w80px {width: 80px;}     .w85px {width: 85px;}     .w90px {width: 90px;}
-  .w95px {width: 95px;}     .w100px {width: 100px;}
+  .w95px {width: 95px;}     .w100px {width: 100px;}   .w120px {width: 120px;}   .w140px {width: 140px;}
+  .w150px {width: 150px;}   .w160px {width: 160px;}   .w180px {width: 180px;}   .w200px {width: 200px;}
+  .w250px {width: 250px;}   .w300px {width: 300px;}   .w350px {width: 350px;}   .w400px {width: 400px;}
+  .w450px {width: 450px;}   .w500px {width: 500px;}
 
   .h5 {height: 15%;}        .h10 {height: 10%;}       .h20 {height: 20%;}       .h25 {height: 25%;}
   .h30 {height: 30%;}       .h33 {height: 33.33%;}    .h40 {height: 40%;}       .h50 {height: 50%;}
@@ -150,7 +162,10 @@
   .h40px {height: 40px;}    .h45px {height: 45px;}    .h50px {height: 50px;}    .h55px {height: 5px;}
   .h60px {height: 60px;}    .h65px {height: 65px;}    .h66px {height: 66px;}    .h70px {height: 70px;}
   .h75px {height: 75px;}    .h80px {height: 80px;}    .h85px {height: 85px}     .h90px {height: 90px;}
-  .h95px {height: 95px;}    .h100px {height: 100px;}
+  .h95px {height: 95px;}    .h100px {height: 100px;}  .h120px {height: 120px;}  .h140px {height: 140px;}
+  .h150px {height: 150px;}  .h160px {height: 160px;}  .h180px {height: 180px;}  .h200px {height: 200px;}
+  .h250px {height: 250px;}  .h300px {height: 300px;}  .h350px {height: 350px;}  .h400px {height: 400px;}
+  .h450px {height: 450px;}  .h500px {height: 500px;}
 
   .pad-1 {padding: 1px;}    .pad-2 {padding: 2px;}    .pad-3 {padding: 3px;}    .pad-4 {padding: 4px;}
   .pad-5 {padding: 5px;}    .pad-6 {padding: 6px;}    .pad-7 {padding: 7px;}    .pad-8 {padding: 8px;}
