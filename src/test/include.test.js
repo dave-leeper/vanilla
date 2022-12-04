@@ -1,4 +1,4 @@
-suite(`Test IncludeNode`, `Ensure that include and component tags are working.`, [
+suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
     test (`Create`, `Ensure that IncludeNode objects can be properly created.`, [() => {
         const includeNode = new IncludeNode(`TestIncludeNode`)
         assert(includeNode,                                                 `includeNode created.`)
@@ -12,7 +12,7 @@ suite(`Test IncludeNode`, `Ensure that include and component tags are working.`,
         const includeNode = new IncludeNode(`TestIncludeNode`)
         includeNode.addChild(`TestIncludeNodeChild`)
         assert(includeNode.children.length === 1,                           `includeNode children has one child.`)
-        assert(includeNode.children[0].name ===                             `TestIncludeNodeChild`, `includeNode child is named TestIncludeNodeChild.`)
+        assert(includeNode.children[0].name === `TestIncludeNodeChild`,     `includeNode child is named TestIncludeNodeChild.`)
         assert(includeNode.parent === null,                                 `includeNode has no parent.`)
         assert(includeNode.children[0].parent === includeNode,              `Child's parent is includeNode.`)
         assert(includeNode.hasChild(`TestIncludeNodeChild`),                `includeNode has child TestIncludeNodeChild.`)
@@ -61,3 +61,24 @@ suite(`Test IncludeNode`, `Ensure that include and component tags are working.`,
                                                                             `TestIncludeNodeGrandchild has ancestor TestIncludeNodeChild.`)
     }]),
 ])
+
+suite(`Test IncludeTree`, `Ensure IncludeTree is working.`, [
+    test (`Create`, `Ensure that IncludeTree objects can be properly created.`, [() => {
+        const includeTree = new IncludeTree()
+        assert(includeTree,                                                 `includeTree created.`)
+        assert(includeTree.nodes !== undefined,                             `includeTree nodes not undefined.`)
+        assert(includeTree.nodes !== null,                                  `includeTree nodes not null.`)
+        assert(includeTree.nodes.length === 0,                              `includeTree nodes array is empty.`)
+    }]),
+    test (`Add nodes`, `Ensure that adding nodes works correctly.`, [() => {
+        const includeTree = new IncludeTree()
+        const includeNode = new IncludeNode(`TestIncludeNode`)
+        includeTree.addNode(includeNode);
+        assert(includeTree.nodes.length === 1,                              `includeTree nodes has one child.`)
+        assert(includeTree.nodes[0].name === `TestIncludeNode`,             `includeTree node is named TestIncludeNode.`)
+        assert(includeTree.hasNode(`TestIncludeNode`),                      `includeTree has node TestIncludeNode.`)
+        assert(includeTree.getNodeByName(`TestIncludeNode`).name === `TestIncludeNode`,
+                                                                            `includeTree can return node object by name.`)
+    }]),
+])
+
