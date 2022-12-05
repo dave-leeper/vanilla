@@ -59,7 +59,7 @@ suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
         assert(grandchild.getAncestor(`TestIncludeNodeChild`) === child,    `TestIncludeNodeGrandchild returns ancestor TestIncludeNodeChild.`, results)
         assert(child.hasAncestor(`TestIncludeNode`),                        `TestIncludeNodeChild has ancestor TestIncludeNode.`, results)
         assert(child.getAncestor(`TestIncludeNode`) === includeNode,        `TestIncludeNodeChild returns ancestor TestIncludeNode.`, results)
-        
+
         return results                                                                    
     }]),
     test (`Descendants`, `Ensure descendant nodes works correctly.`, [() => {
@@ -122,8 +122,6 @@ suite(`Test VanillaComponent`, `Ensure VanillaComponent is working.`, [
 
         testDiv.id = `testDiv`
         testDivChild.id = `testDivChild`
-        testDiv.nodeValue = text
-        testDivChild.nodeValue = textChild
         testDiv.appendChild(testDivText)
         testDiv.appendChild(testDivChild)
         testDivChild.appendChild(testDivChildText)
@@ -133,8 +131,8 @@ suite(`Test VanillaComponent`, `Ensure VanillaComponent is working.`, [
         
         assert(testDivText.nodeValue === `Original Text value 1`,           `Node value replaced.`, results)
         assert(testDivText.originalNodeValue === text,                      `Original value saved.`, results)
-        assert(testDivChildText.nodeValue === `Original Text value 2`,      `Node value replaced.`, results)
-        assert(testDivChildText.originalNodeValue === textChild,            `Node value replaced.`, results)
+        assert(testDivChildText.nodeValue === `Original Text value 2`,      `Node value replaced in child nodes.`, results)
+        assert(testDivChildText.originalNodeValue === textChild,            `Original value saved in child nodes.`, results)
 
         testDiv.remove()
         testDivChild.remove()
@@ -165,10 +163,10 @@ suite(`Test VanillaComponent`, `Ensure VanillaComponent is working.`, [
         VanillaComponent.replaceAttributeValue(testDiv, testData, `field1`)
         VanillaComponent.replaceAttributeValue(testDiv, testData, `field2`)
         
-        assert(testDivAttr.value === `Original Text value 1`,               `Node value replaced.`, results)
+        assert(testDivAttr.value === `Original Text value 1`,               `Attribute value replaced.`, results)
         assert(testDivAttr.originalAttributeValue === text,                 `Original value saved.`, results)
-        assert(testDivChildAttr.value === `Original Text value 2`,          `Node value replaced.`, results)
-        assert(testDivChildAttr.originalAttributeValue === textChild,       `Node value replaced.`, results)
+        assert(testDivChildAttr.value === `Original Text value 2`,          `Attribute value replaced in child nodes.`, results)
+        assert(testDivChildAttr.originalAttributeValue === textChild,       `Original value saved in child nodes.`, results)
 
         testDiv.remove()
         testDivChild.remove()
