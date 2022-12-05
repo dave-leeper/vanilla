@@ -143,15 +143,16 @@ class VanillaComponent {
             VanillaComponent.replaceAttributeValue(fragment, componentObject.vars, member)
         }
     }
-    static unpackFragment = (fragment, marker) => {
+    static unpackComponentFragment = (fragment, marker) => {
         const parent = marker.parentNode
         marker.after(fragment)
         const markup = parent.getElementsByTagName("markup");
         const style = parent.getElementsByTagName("style");
         if (!markup || 0 === markup.length) {
             console.error(`Failed to register component. Could not find markup tag.`)
-            return
+            return null
         }
+
         let nodes = []
         const length = markup[0].children.length
         for (let loop = length - 1; loop >= 0; loop--) {
@@ -160,26 +161,37 @@ class VanillaComponent {
             marker.after(node)
         }
         if (style && 0 < style.length) {
-            marker.before(style[0])
+            marker.after(style[0])
         }
         markup[0].remove()
         return nodes.reverse()
     }
     static registerComponent = (id, componentObject, nodes) => {
-        if (!id) { return false }
-        if (!document.$vanilla) { document.$vanilla = {} }
-        if (!document.$vanilla.registry) { document.$vanilla.registry = new Map() }
-        ;
+        if (!id) { 
+            console.error(`No id provided for component registration.`)
+            return false 
+        }
+        if (!componentObject) { 
+            console.error(`No component object provided for component registration.`)
+            return false 
+        }
+        if (!nodes) { 
+            console.error(`No nodes provided for component registration.`)
+            return false 
+        }
+        if (!window.$vanilla) { window.$vanilla = {} }
+        if (!window.$vanilla.registry) { window.$vanilla.registry = new Map() }
+
         const node = document.querySelectorAll(`[component-id="${id}"]`)
         if (!node || 0 === node.length) {
             console.error(`Failed to register component. Could not find ${id}.`)
-            return
+            return false
         }
-        document.$vanilla.registry.set(id, {componentObject, nodes})
+        window.$vanilla.registry.set(id, {componentObject, nodes})
         return true
     }
     static mountComponent = (id) => {
-        const componentInfo = document.$vanilla.registry.get(id)
+        const componentInfo = window.$vanilla.registry.get(id)
         if (!componentInfo) {
             console.error(`Failed to mount component. Could not find ${id}.`)
             return
@@ -202,7 +214,7 @@ class VanillaComponent {
         componentInfo.componentObject.afterMount()
     }
     static unmountComponent = (id) => {
-        const componentInfo = document.$vanilla.registry.get(id)
+        const componentInfo = window.$vanilla.registry.get(id)
         if (!componentInfo) {
             console.error(`Failed to unmount component. Could not find ${id}.`)
             return
@@ -323,19 +335,18 @@ const loadIncludeComponents = () => {
                 console.error(`Failed to create component. Include-component processing halted. Component name: ${component}. Id of the bad include tag: ${componentId}. Include file causing recursion: ${src}.`)
                 return
             }
-            componentObject.initialize()
+            if (componentObject.initialize) { componentObject.initialize() }
             VanillaComponent.wrapVars(componentObject, frag)
             VanillaComponent.wrapProps(componentObject, frag)
-            componentObject.beforeMount()
+            if (componentObject.beforeMount) { componentObject.beforeMount() }
             let marker = document.createElement('script')
             marker.id = `-VanillaComponent${componentId}`
             marker.type = 'text/javascript'
             include.after(marker)
-            const nodes = VanillaComponent.unpackFragment(frag, marker)
+            const nodes = VanillaComponent.unpackComponentFragment(frag, marker)
         
             VanillaComponent.registerComponent(componentId, componentObject, nodes)
-            componentObject.afterMount()
-            include.remove()
+            if (componentObject.afterMount) { componentObject.afterMount() }
 
             _loadIncludeComponents(includeTree)
         })

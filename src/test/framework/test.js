@@ -1,6 +1,13 @@
-const assert = (isTrue, optionalDescription) => {
+const assert = (isTrue, optionalDescription, optionalResults) => {
+  if (optionalDescription && optionalResults) { optionalResults.push(optionalDescription) }
   if (!isTrue) {
-    throw new Error(optionalDescription);
+    if (optionalResults) {
+      throw optionalResults
+    } else if (optionalDescription) {
+      throw new Error(optionalDescription)
+    } else {
+      new Error(`Assert failed`)
+    }
   }
 }
 
@@ -10,17 +17,24 @@ const test = (name, description, tests) => {
     name,
     description,
     passed: false,
+    assertResults: [],
     duration: 0
   }
   try {
     for (let loop = 0; loop < tests.length; loop++) {
       let start = Date.now()
-      tests[loop]()
+      let testResults = tests[loop]()
       result.duration = Date.now() - start
       result.passed = true
+      result.assertResults = result.assertResults.concat(testResults)
       results.push(result)
     }
   } catch (e) {
+    if (Array.isArray(e)) {
+      result.assertResults = e
+    } else {
+      result.assertResults.push(e.message)
+    }
     results.push(result)
   }
   return results
@@ -38,26 +52,26 @@ const suite = (name, description, testResults) => {
     suiteDiv.className = `flex-col flex-space-around w95 margin-lr-5 margin-b-5 pad-5 border-3 border-solid border-black ${suiteTextColor}`
     suiteDivName.id = `CardSuiteName${name}`
     suiteDivName.className = `heading-6 ${suiteTextColor}`
-    suiteDivName.innerText = `${name} ${emoji}`
+    suiteDivName.innerText = `Suite Summary: ${name} ${emoji}`
     suiteDivDescription.id = `CardSuiteDescription${name}`
     suiteDivDescription.className = `caption-1 margin-b-5 ${suiteTextColor}`
     suiteDivDescription.innerText = description
     suiteDivTests.id = `CardSuiteTestsRow${name}`
-    suiteDivTests.className = `flex-row flex-wrap margin-lr-10`
+    suiteDivTests.className = `flex-row flex-wrap flex-space-between margin-lr-5`
     suiteDiv.appendChild(suiteDivName);
     suiteDiv.appendChild(suiteDivDescription);
     suiteDiv.appendChild(suiteDivTests);
-    document.getElementById(`CardTestingResults`).appendChild(suiteDiv);
+    document.getElementById(`CardTestingResults`).appendChild(suiteDiv)
     return suiteDivTests
   }
   const _createTextSuiteDiv = (passed) => {
     let suiteDiv = document.createElement('div')
-    let suiteText = `Suite: ${name} ${description}`
+    let suiteText = `Suite Detail: ${name} ${description}`
     let suiteTextColor = passed? "green-7" : "red-f"
     suiteDiv.id = `TextSuite${name}`
     suiteDiv.className = `flex-col caption-1 margin-5 pad-5 ${suiteTextColor}`
     suiteDiv.innerText = suiteText
-    document.getElementById(`TextTestingResults`).appendChild(suiteDiv);
+    document.getElementById(`TextTestingResults`).appendChild(suiteDiv)
     return suiteDiv
   }
   let suitePassed = true
@@ -79,6 +93,7 @@ const suite = (name, description, testResults) => {
     let results = testResults[loop]
     for (let loop2 = 0; loop2 < results.length; loop2++) {
       let testTextColor = results[loop2].passed? "green-7" : "red-f"
+      let assertResults = results[loop2].assertResults
 
       const _createCardTestWrapperDiv = (suiteDiv) => {
         let testWrapperDiv = document.createElement('div')
@@ -160,7 +175,17 @@ const suite = (name, description, testResults) => {
       _createTextTestDescriptionDiv(textTestWrapperDiv)
       _createTextTestDurationDiv(textTestWrapperDiv)
       _createTextTestPassedDiv(textTestWrapperDiv)
-
+      for (let loop = 0; loop < assertResults.length; loop++) {
+        const _createTextTestAssertResultDiv = (suiteDiv, assertResult, assertCount) => {
+          let testAssertResultDiv = document.createElement('div')
+          testAssertResultDiv.id = `TextTestPassedAssertResul${results[loop2].name}-${assertCount}`
+          testAssertResultDiv.className = `caption-2 margin-l-20 ${testTextColor}`
+          testAssertResultDiv.innerText = assertResult
+          suiteDiv.appendChild(testAssertResultDiv)
+        }
+        let assertResult = assertResults[loop]
+        _createTextTestAssertResultDiv(textSuiteDiv, assertResult, loop)
+      }
     }
   }
 }
