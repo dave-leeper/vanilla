@@ -46,7 +46,7 @@ const suite = (name, description, testResults) => {
     let suiteDivName = document.createElement('div')
     let suiteDivDescription = document.createElement('div')
     let suiteDivTests = document.createElement('div')
-    let suiteTextColor = passed? "green-7" : "red-f"
+    let suiteTextColor = passed? `green-7` : `red-f`
     let emoji = passed? `👍` : `👎`
     suiteDiv.id = `CardSuite${name}`
     suiteDiv.className = `flex-col flex-space-around w95 margin-lr-5 margin-b-5 pad-5 border-3 border-solid border-black ${suiteTextColor}`
@@ -67,7 +67,7 @@ const suite = (name, description, testResults) => {
   const _createTextSuiteDiv = (passed) => {
     let suiteDiv = document.createElement('div')
     let suiteText = `Suite Detail: ${name} ${description}`
-    let suiteTextColor = passed? "green-7" : "red-f"
+    let suiteTextColor = passed? `green-7` : `red-f`
     suiteDiv.id = `TextSuite${name}`
     suiteDiv.className = `flex-col caption-1 margin-5 pad-5 ${suiteTextColor}`
     suiteDiv.innerText = suiteText
@@ -92,7 +92,7 @@ const suite = (name, description, testResults) => {
   for (let loop = 0; loop < testResults.length; loop++) {
     let results = testResults[loop]
     for (let loop2 = 0; loop2 < results.length; loop2++) {
-      let testTextColor = results[loop2].passed? "green-7" : "red-f"
+      let testTextColor = results[loop2].passed? `green-7` : `red-f`
       let assertResults = results[loop2].assertResults
 
       const _createCardTestWrapperDiv = (suiteDiv) => {
@@ -178,8 +178,10 @@ const suite = (name, description, testResults) => {
       for (let loop = 0; loop < assertResults.length; loop++) {
         const _createTextTestAssertResultDiv = (suiteDiv, assertResult, assertCount) => {
           let testAssertResultDiv = document.createElement('div')
+          let assertColor = (loop < assertResults.length - 1)? `green-7` : testTextColor
+
           testAssertResultDiv.id = `TextTestPassedAssertResul${results[loop2].name}-${assertCount}`
-          testAssertResultDiv.className = `caption-2 margin-l-20 ${testTextColor}`
+          testAssertResultDiv.className = `caption-2 margin-l-20 ${assertColor}`
           testAssertResultDiv.innerText = assertResult
           suiteDiv.appendChild(testAssertResultDiv)
         }

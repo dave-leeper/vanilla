@@ -80,7 +80,7 @@ class IncludeTree {
     }
 }
 
-class VanillaComponent {
+class VanillaComponentLifecycle {
     static replaceNodeValue = (node, data, member) => {
         if (node.nodeValue) {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
@@ -91,7 +91,7 @@ class VanillaComponent {
             }
         }
         for (let child of node.childNodes) {
-            VanillaComponent.replaceNodeValue(child, data, member)
+            VanillaComponentLifecycle.replaceNodeValue(child, data, member)
         }
     }
     static replaceAttributeValue = (node, data, member) => {
@@ -105,7 +105,7 @@ class VanillaComponent {
             }
         }
         for (let child of node.childNodes) {
-            VanillaComponent.replaceAttributeValue(child, data, member)
+            VanillaComponentLifecycle.replaceAttributeValue(child, data, member)
         }
     }
     static wrapProps = (componentObject, fragment) => {
@@ -120,8 +120,8 @@ class VanillaComponent {
                 set: function(newValue) {
                 }
             })
-            VanillaComponent.replaceNodeValue(fragment, componentObject.props, member)
-            VanillaComponent.replaceAttributeValue(fragment, componentObject.props, member)
+            VanillaComponentLifecycle.replaceNodeValue(fragment, componentObject.props, member)
+            VanillaComponentLifecycle.replaceAttributeValue(fragment, componentObject.props, member)
         }
     }
     static wrapVars = (componentObject, fragment) => {
@@ -135,14 +135,288 @@ class VanillaComponent {
                 },
                 set: function(newValue) {
                     componentObject.vars.$varsStore[member] = newValue
-                    VanillaComponent.replaceNodeValue(fragment, componentObject.vars, member)
-                    VanillaComponent.replaceAttributeValue(fragment, componentObject.vars, member)
+                    VanillaComponentLifecycle.replaceNodeValue(fragment, componentObject.vars, member)
+                    VanillaComponentLifecycle.replaceAttributeValue(fragment, componentObject.vars, member)
                 }
             })
-            VanillaComponent.replaceNodeValue(fragment, componentObject.vars, member)
-            VanillaComponent.replaceAttributeValue(fragment, componentObject.vars, member)
+            VanillaComponentLifecycle.replaceNodeValue(fragment, componentObject.vars, member)
+            VanillaComponentLifecycle.replaceAttributeValue(fragment, componentObject.vars, member)
         }
     }
+    static compile = (html) => {
+        let fragment = document.createDocumentFragment()
+
+        fragment.append(...new DOMParser().parseFromString(html, `text/html`).body.childNodes)
+        return fragment
+    }
+    static registerDOMFragment = (fragmentId, DOMFragment, includeTest) => {
+        if (!fragmentId) { 
+            console.error(`No fragment id provided for DOM fragment registration.`)
+            return false 
+        }
+        if (!DOMFragment) { 
+            console.error(`No DOM fragment provided for DOM fragment registration.`)
+            return false 
+        }
+        if (window?.$vanilla?.fragmentRegistry?.has(fragmentId)) { 
+            console.error(`DOM Fragment ${fragmentId} is already registered.`)
+            return false 
+        }
+
+        let scripts = DOMFragment.querySelectorAll('script')
+        let tests = DOMFragment.querySelectorAll('test')
+        let styles = DOMFragment.querySelectorAll('style')
+        let markup = DOMFragment.querySelectorAll('markup')
+
+        if (1 !== scripts.length) {
+            console.error(`Fragment must contain one and only one component script tag.`)
+            return false
+        }
+        if (1 !== markup.length) {
+            console.error(`Fragment must contain one and only one component markup tag.`)
+            return false
+        }
+        if (1 < styles.length) {
+            console.error(`Fragment can contain no more than one component style tag.`)
+            return false
+        }
+        if (includeTest) {
+            if (1 < tests.length) {
+                console.error(`Fragment can contain no more than one component test tag.`)
+                return false
+            }   
+        }
+        let scriptTag = document.createElement('script')
+
+        scriptTag.type = 'text/javascript'
+        scriptTag.id = `ScriptTag${fragmentId}`
+        scripts[0].remove()
+        try {
+            eval(`new ${fragmentId}`)
+            scriptTag.appendChild(document.createTextNode(``))
+        } catch (e) {
+            scriptTag.appendChild(document.createTextNode(scripts[0].innerText))
+        }
+        document.head.appendChild(scriptTag);
+
+        if (styles.length) {
+            let styleTag = document.createElement('style')
+
+            styleTag.id = `StyleTag${fragmentId}`
+            styleTag.appendChild(document.createTextNode(styles[0].innerText))
+            styles[0].remove()
+            document.head.appendChild(styleTag);
+        }
+        if (tests.length) {
+            if (includeTest) {
+                let testTag = document.createElement('script')
+                let tests = DOMFragment.querySelectorAll('test')
+
+                testTag.type = 'text/javascript'
+                testTag.id = `TestTag${fragmentId}`
+                testTag.appendChild(document.createTextNode(tests[0].innerText))
+                document.head.appendChild(testTag);
+            }
+            tests[0].remove()
+        }
+        if (!window.$vanilla) { window.$vanilla = {} }
+        if (!window.$vanilla.fragmentRegistry) { window.$vanilla.fragmentRegistry = new Map() }
+        window.$vanilla.fragmentRegistry.set(fragmentId, DOMFragment)
+
+        return true
+    }
+    static unregisterDOMFragment = (fragmentId) => {
+        if (!fragmentId) { 
+            console.error(`No fragment id provided for unregistration.`)
+            return false 
+        }
+        if (!window?.$vanilla?.fragmentRegistry?.has(fragmentId)) { 
+            console.error(`DOM Fragment ${fragmentId} was not in registery.`)
+            return false 
+        }
+        let componentScriptTag = document.getElementById(`ScriptTag${fragmentId}`)
+        let componentStyleTag = document.getElementById(`StyleTag${fragmentId}`)
+        let componentTestTag = document.getElementById(`TestTag${fragmentId}`)
+        
+        if (componentScriptTag) { componentScriptTag.remove() }
+        if (componentStyleTag) { componentStyleTag.remove() }
+        if (componentTestTag) { componentTestTag.remove() }
+        window.$vanilla.fragmentRegistry.delete(fragmentId)
+        return true
+    }
+    static createComponentObject = (componentClass, componentObjectId, fragmentId, includeComponentElement) => {
+        if (!componentClass) { 
+            console.error(`No component class provided for createComponentObject.`)
+            return false 
+        }
+        if (!componentObjectId) { 
+            console.error(`No component object id provided for createComponentObject.`)
+            return false 
+        }
+        if (!fragmentId) { 
+            console.error(`No fragment id provided for createComponentObject.`)
+            return false 
+        }
+        if (!includeComponentElement) { 
+            console.error(`No includeComponentElement provided for createComponentObject.`)
+            return false 
+        }
+
+        let componentObject = eval(` new ${componentClass}()`)
+        let markerId = `-VanillaComponentMarker${componentObjectId}`
+        let marker = document.getElementById(markerId)
+        let fragment =  window.$vanilla.fragmentRegistry.get(fragmentId)
+
+        if (!marker) {
+            let marker = document.createElement('script')
+
+            marker.id = markerId
+            marker.type = 'text/javascript'
+            includeComponentElement.parentNode.replaceChild(marker, includeComponentElement);
+        }
+        if (componentObject.initialize) { componentObject.initialize() }
+        VanillaComponentLifecycle.wrapVars(componentObject, fragment)
+        VanillaComponentLifecycle.wrapProps(componentObject, fragment)
+
+        return componentObject
+    }
+    static registerComponentObject = (componentObjectID, componentObject, fragmentId) => {
+        if (!componentObjectID) { 
+            console.error(`No component object id provided for component object registration.`)
+            return false 
+        }
+        if (!componentObject) { 
+            console.error(`No component object provided for component object registration.`)
+            return false 
+        }
+        if (!fragmentId) { 
+            console.error(`No fragment id provided for component object registration.`)
+            return false 
+        }
+        if (window?.$vanilla?.objectRegistry?.has(componentObjectID)) { 
+            console.error(`Component object ${componentObjectID} is already registered.`)
+            return false 
+        }
+        if (!window.$vanilla) { window.$vanilla = {} }
+        if (!window.$vanilla.objectRegistry) { window.$vanilla.objectRegistry = new Map() }
+        window.$vanilla.objectRegistry.set(componentObjectID, {componentObject, fragmentId, mounted: false})
+        return true
+    }
+    static unregisterComponentObject = (componentObjectID) => {
+        if (!componentObjectID) { 
+            console.error(`No component object id provided for registration.`)
+            return false 
+        }
+        if (!window?.$vanilla?.objectRegistry?.has(componentObjectID)) { 
+            console.error(`Component object ${componentObjectID} was not in registery.`)
+            return false 
+        }
+        window.$vanilla.objectRegistry.delete(componentObjectID)
+        return true
+    }
+    static mount = (componentObjectId) => {
+        if (!componentObjectId) { 
+            console.error(`No component object id provided for mount.`)
+            return false 
+        }
+        if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
+            console.error(`Component object ${componentObjectId} was not in registery.`)
+            return false 
+        }
+
+        let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
+        let fragment = window.$vanilla.fragmentRegistry.get(componentObjectInfo.fragmentId)
+        let markerId = `-VanillaComponentMarker${componentObjectId}`
+        let marker = document.getElementById(markerId)
+
+        if (!fragment) { 
+            console.error(`DOM fragment ${componentObjectInfo.fragmentId} is not in registery.`)
+            return false 
+        }
+        if (!componentObjectInfo.componentObject) { 
+            console.error(`Component object ${componentObjectId} is not in registery.`)
+            return false 
+        }
+        if (componentObjectInfo.mounted) { 
+            console.error(`Component object ${componentObjectId} is already mounted.`)
+            return false 
+        }
+        if (!marker) { 
+            console.error(`Marker for ${componentObjectId} is not in DOM.`)
+            return false 
+        }
+
+        let clonedFragment = fragment.cloneNode(true)
+        let markup = clonedFragment.querySelector(`markup`)
+
+        if (!markup) { 
+            console.error(`Markup for ${componentObjectId} not found.`)
+            return false 
+        }
+        if (componentObjectInfo.componentObject.beforeMount) { componentObjectInfo.componentObject.beforeMount() }
+        for (let loop = markup.children.length - 1; loop >= 0; loop--) {
+            let child = markup.children[loop]
+
+            marker.after(child)
+        }
+        componentObjectInfo.mounted = true
+        window.$vanilla.objectRegistry.set(componentObjectId, componentObjectInfo)
+        if (componentObjectInfo.componentObject.afterMount) { componentObjectInfo.componentObject.afterMount() }
+        return true
+    }
+    static unmount = (componentObjectId) => {
+        if (!componentObjectId) { 
+            console.error(`No component object id provided for mount.`)
+            return false 
+        }
+        if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
+            console.error(`Component object ${componentObjectId} is not in registery.`)
+            return false 
+        }
+
+        let componentObjectInfo = window?.$vanilla?.objectRegistry?.get(componentObjectId)
+
+        if (!componentObjectInfo?.componentObject) { 
+            console.error(`Component object ${componentObjectId} is not in registery.`)
+            return false 
+        }
+        if (!componentObjectInfo.mounted) { 
+            console.error(`Component object ${componentObjectId} was not mounted.`)
+            return false 
+        }
+
+        let fragment = window.$vanilla.fragmentRegistry.get(componentObjectInfo.fragmentId)
+        let markerId = `-VanillaComponentMarker${componentObjectId}`
+        let marker = document.getElementById(markerId)
+        let markup = fragment.querySelector(`markup`)
+
+        if (!fragment) { 
+            console.error(`Fragment ${componentObjectInfo.fragmentId} is not in registery.`)
+            return false 
+        }
+        if (!marker) { 
+            console.error(`Marker for ${componentObjectId} not in DOM.`)
+            return false 
+        }
+        if (!markup) { 
+            console.error(`Markup for ${componentObjectId} not found.`)
+            return false 
+        }
+
+        if (componentObjectInfo.componentObject.beforeMount) { componentObjectInfo.componentObject.beforeUnmount() }        
+        for (let loop = markup.children.length - 1; loop >= 0; loop--) {
+            marker.nextSibling.remove()
+        }
+        componentObjectInfo.mounted = false
+        window.$vanilla.objectRegistry.set(componentObjectId, componentObjectInfo)
+        if (componentObjectInfo.componentObject.afterMount) { componentObjectInfo.componentObject.afterUnmount() }
+        return true
+    }
+
+
+
+
+    /*
     static unpackComponentFragment = (fragment, marker) => {
         const parent = marker.parentNode
         marker.after(fragment)
@@ -179,27 +453,40 @@ class VanillaComponent {
             console.error(`No nodes provided for component registration.`)
             return false 
         }
+        if (window?.$vanilla?.registry?.has(id)) { 
+            console.error(`Component ${id} is already registered.`)
+            return false 
+        }
         if (!window.$vanilla) { window.$vanilla = {} }
         if (!window.$vanilla.registry) { window.$vanilla.registry = new Map() }
-
-        const node = document.querySelectorAll(`[component-id="${id}"]`)
-        if (!node || 0 === node.length) {
-            console.error(`Failed to register component. Could not find ${id}.`)
-            return false
-        }
-        window.$vanilla.registry.set(id, {componentObject, nodes})
+        window.$vanilla.registry.set(id, {componentObject, nodes, mounted: false})
         return true
     }
-    static mountComponent = (id) => {
-        const componentInfo = window.$vanilla.registry.get(id)
-        if (!componentInfo) {
-            console.error(`Failed to mount component. Could not find ${id}.`)
-            return
+    static unregisterComponent = (id) => {
+        if (!id) { 
+            console.error(`No id provided for component unregistration.`)
+            return false 
         }
-        const marker = document.getElementById(`-VanillaComponent${id}`)
+        if (!window?.$vanilla?.registry?.has(id)) { 
+            console.error(`Component ${id} was not registered.`)
+            return false 
+        }
+        window.$vanilla.registry.delete(id)
+    }
+    static mountComponent = (componentObjectId) => {
+        const componentInfo = window.$vanilla.registry.get(componentObjectId)
+        if (!componentInfo) {
+            console.error(`Failed to mount component. Could not find ${componentObjectId}.`)
+            return false
+        }
+        if (componentInfo.mounted) {
+            console.error(`Component ${componentObjectId} is already mounted.`)
+            return false
+        }
+        const marker = document.getElementById(`-VanillaComponentMarker${componentObjectId}`)
         if (!marker) {
-            console.error(`Failed to mount component. Could not find DOM location of ${id}.`)
-            return
+            console.error(`Failed to mount component. Could not find DOM location of ${componentObjectId}.`)
+            return false
         }
         componentInfo.componentObject.beforeMount()
         const length = componentInfo.nodes.length
@@ -211,18 +498,25 @@ class VanillaComponent {
                 marker.parentNode.appendChild(node);
             }
         }
+        componentInfo.mounted = true
+        window.$vanilla.registry.set(componentObjectId, componentInfo)
         componentInfo.componentObject.afterMount()
+        return true
     }
     static unmountComponent = (id) => {
         const componentInfo = window.$vanilla.registry.get(id)
         if (!componentInfo) {
             console.error(`Failed to unmount component. Could not find ${id}.`)
-            return
+            return false
         }
-        const marker = document.getElementById(`-VanillaComponent${id}`)
+        if (!componentInfo.mounted) {
+            console.error(`Component ${id} is already unmounted.`)
+            return false
+        }
+        const marker = document.getElementById(`-VanillaComponentMarker${id}`)
         if (!marker) {
             console.error(`Failed to unmount component. Could not find DOM location of ${id}.`)
-            return
+            return false
         }
         componentInfo.componentObject.beforeUnmount()
         const length = componentInfo.nodes.length
@@ -231,6 +525,37 @@ class VanillaComponent {
             marker.parentNode.removeChild( node );
         }
         componentInfo.componentObject.afterUnmount()
+        return true
+    }
+    */
+}
+
+class Vanilla {
+    static getComponentFragment = (fragmentId) => {
+        if (!fragmentId) { 
+            console.error(`No component fragment id provided.`)
+            return null 
+        }
+        if (!window?.$vanilla?.fragmentRegistry?.has(fragmentId)) { 
+            console.error(`Component fragment ${fragmentId} is not registered.`)
+            return null 
+        }
+        
+        let fragment = window.$vanilla.fragmentRegistry.get(fragmentId)
+        return fragment
+    }
+    static getComponentObject = (componentObjectId) => {
+        if (!componentObjectId) { 
+            console.error(`No component object id provided.`)
+            return null 
+        }
+        if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
+            console.error(`Component object ${componentObjectId} is not registered.`)
+            return null 
+        }
+        
+        let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
+        return componentObjectInfo.componentObject
     }
 }
 
@@ -272,82 +597,101 @@ const loadIncludeComponents = () => {
         }
 
         let src = attributes.src?.value
-        let componentId = attributes[`component-id`].value
+        let componentObjectId = attributes[`component-id`].value
         let component = attributes.component?.value
-        let id = attributes[`component-id`].value
 
         if (!src) {
-            console.error(`Include-component missing required attribute 'src'. Include-component processing halted. Id of the the bad include-component tag: ${componentId}.`)
+            console.error(`Include-component missing required attribute 'src'. Include-component processing halted. Id of the the bad include-component tag: ${componentObjectId}.`)
             return false
         }
-        if (!componentId) {
+        if (!componentObjectId) {
             console.error(`Include-component missing required attribute 'componentId'. Include-component processing halted. Include file causing recursion: ${src}.`)
             return false
         }
         if (!component) {
-            console.error(`Include-component missing required attribute 'component'. Include-component processing halted. Id of the bad include-component tag: ${componentId}. Include file causing recursion: ${src}.`)
+            console.error(`Include-component missing required attribute 'component'. Include-component processing halted. Id of the bad include-component tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
             return false
         }
         if (!id) {
-            console.error(`Include-component missing required attribute 'component-id'. Include-component processing halted. Id of the bad include-component tag: ${componentId}. Include file causing recursion: ${src}.`)
+            console.error(`Include-component missing required attribute 'component-id'. Include-component processing halted. Id of the bad include-component tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
             return false
         }
-        return [src, componentId, component]
+        return [src, componentObjectId, component]
+    }
+    const _buildIncludeTree = (includeTree, componentObjectId, src) => {
+        let node = null
+        
+        if (includeTree.hasNode(componentObjectId)) {
+            node = includeTree.getNodeByName(componentObjectId)
+        } else {
+            node = new IncludeNode(componentObjectId)
+            includeTree.addNode(node)
+        }
+        if (node.hasAncestor(src)) {
+            return false
+        }
+        node.addChild(src)
+        return true
     }
     const _loadIncludeComponents = (previousIncludeTree) => {
         let includes = document.getElementsByTagName('include-component')
+
         if (0 === includes.length) {return}
+
         let includeTree = previousIncludeTree
         let include = includes[0]
-        let [src, componentId, component, repeat] = _validateIncudeComponentAttributes(include.attributes)
-        if (!src || !componentId || !component) {return}
-        let node = includeTree.hasNode(componentId)? includeTree.getNodeByName(componentId) : new IncludeNode(componentId)
-        includeTree.addNode(node)
-        includeTree.toString(``)
-        if (node.hasAncestor(src)) {
-            console.error(`Include-component tag causes infinite recursion. Include-component processing halted. Id of the bad include-component tag: ${componentId}. Include file causing recursion: ${src}.`)
+        let [src, componentObjectId, fragmentId, repeat] = _validateIncudeComponentAttributes(include.attributes)
+
+        if (!src) {
+            console.error(`Include-component tag is missing required attribute 'src'. Include-component processing halted. Id of the bad include-component tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
             return
         }
-        loadFile(include.attributes.src.value, function(text){
-            var frag = document.createDocumentFragment()
+        if (!componentObjectId) {
+            console.error(`Include-component tag is missing required attribute 'component-id'. Include-component processing halted. Id of the bad include-component tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+            return
+        }
+        if (!fragmentId) {
+            console.error(`Include-component tag is missing required attribute 'component'. Include-component processing halted. Id of the bad include-component tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+            return
+        }
 
-            frag.append(...new DOMParser().parseFromString(text, `text/html`).body.childNodes)
-            const scripts = frag.querySelectorAll(`script`)
-            const tests = frag.querySelectorAll(`test`)
-            try {
-                var script_tag = document.createElement('script')
-                script_tag.type = 'text/javascript'
-                script_tag.appendChild(document.createTextNode(scripts[0].innerText))
-                include.after(script_tag)
-            } catch (e) {
-                console.error(`Include-component tag failed to create script node.`)
+        let nodeAddedToIncludeTree = _buildIncludeTree = (includeTree, componentObjectId, src)
+
+        if (!nodeAddedToIncludeTree) {
+            console.error(`Include-component tag causes infinite recursion. Include-component processing halted. Id of the bad include-component tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+            return
+        }
+
+        loadFile(include.attributes.src.value, function(text){
+            let fragment = VanillaComponentLifecycle.compile(text)
+            let fragmentRegistered = VanillaComponentLifecycle.registerDOMFragment(fragmentId, fragment, false)
+
+            if (!fragmentRegistered) {
+                console.error(`Failed to register component fragment. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
                 return
             }
-            for (let scriptNode of scripts){
-                scriptNode.remove()
+
+            let componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, componentObjectId, fragmentId, include)
+
+            if (!componentObject) {
+                console.error(`Failed to create component. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+                return
             }
-            for (let testNode of tests){
-                testNode.remove()
+
+            let componentObjectRegistered = VanillaComponentLifecycle.registerComponentObject(componentObjectId, componentObject, fragmentId )
+
+            if (!componentObjectRegistered) {
+                console.error(`Failed to register component object. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+                return
             }
             
-            let componentObject = eval(` new ${component}()`)
-            if (!componentObject) {
-                console.error(`Failed to create component. Include-component processing halted. Component name: ${component}. Id of the bad include tag: ${componentId}. Include file causing recursion: ${src}.`)
+            let componentMounted = VanillaComponentLifecycle.new_mountComponent(componentObjectId)
+
+            if (!componentMounted) {
+                console.error(`Failed to mount component object. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
                 return
             }
-            if (componentObject.initialize) { componentObject.initialize() }
-            VanillaComponent.wrapVars(componentObject, frag)
-            VanillaComponent.wrapProps(componentObject, frag)
-            if (componentObject.beforeMount) { componentObject.beforeMount() }
-            let marker = document.createElement('script')
-            marker.id = `-VanillaComponent${componentId}`
-            marker.type = 'text/javascript'
-            include.after(marker)
-            const nodes = VanillaComponent.unpackComponentFragment(frag, marker)
-        
-            VanillaComponent.registerComponent(componentId, componentObject, nodes)
-            if (componentObject.afterMount) { componentObject.afterMount() }
-
+ 
             _loadIncludeComponents(includeTree)
         })
     }
