@@ -1,4 +1,4 @@
-const assert = async (isTrue, optionalDescription, optionalResults) => {
+const assert = (isTrue, optionalDescription, optionalResults) => {
   if (optionalDescription && optionalResults) { optionalResults.push(optionalDescription) }
   if (!isTrue) {
     if (optionalResults) {

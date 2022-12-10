@@ -200,10 +200,10 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         }
         let testComponent = new TestComponent()
         let html = `<footer class="center-text caption-1 red-f pad-tb-5 margin-tb-5 bg-grey-e border-2 border-solid border-black">My Footer</footer>`
-        let frag = VanillaComponentLifecycle.compile(html)
+        let componentFragment = VanillaComponentLifecycle.compile(html)
         let results = []
 
-        VanillaComponentLifecycle.wrapProps(testComponent, frag)
+        VanillaComponentLifecycle.wrapProps(componentFragment, testComponent)
         testComponent.props.prop1 = `New Value`
 
         assert(testComponent.props.$propsStore,                             `Data store created.`, results)
@@ -224,10 +224,10 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         }
         let testComponent = new TestComponent()
         let html = `<footer class="center-text caption-1 red-f pad-tb-5 margin-tb-5 bg-grey-e border-2 border-solid border-black">My Footer</footer>`
-        let frag = VanillaComponentLifecycle.compile(html)
+        let componentFragment = VanillaComponentLifecycle.compile(html)
         let results = []
 
-        VanillaComponentLifecycle.wrapVars(testComponent, frag)
+        VanillaComponentLifecycle.wrapVars(componentFragment, testComponent)
         testComponent.vars.var1 = `New Value`
 
         assert(testComponent.vars.$varsStore,                               `Data store created.`, results)
@@ -574,7 +574,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         window.initialized = false
         testingDOMElement.append(...new DOMParser().parseFromString(includeTagHTML, `text/html`).body.childNodes)
 
-        let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, `TestComponent1`, componentClass, document.getElementById(`TestIncludeTag`))
+        let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, `TestComponent1`, document.getElementById(`TestIncludeTag`))
 
         VanillaComponentLifecycle.unregisterDOMFragment(componentClass)
 
@@ -596,35 +596,35 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         return results                                                                    
     }]),
     await test (`Register component object`, `Ensure a component's object can be successfully registered.`, [async () => {
-        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestObject`, { test: `test` }, `fragment`)
+        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`fragment`, `TestObject`, { test: `test` })
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(`TestObject`)
         let results = []
 
         assert(registerComponentObjectResult,                               `Component object registered successfully.`, results)
         assert(objectInRegistry,                                            `Component object in registry.`, results)
 
-        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestObject`, { test: `test` }, `fragment`)
+        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`fragment`, `TestObject`, { test: `test` })
 
         assert(!registerComponentObjectResult,                              `Registering an object fails when it is already registered.`, results)
 
-        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(null, { test: `test` }, `fragment`)
+        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`fragment`, null, { test: `test` })
 
-        assert(!registerComponentObjectResult,                              `Registering an object fails when no id is provided.`, results)
+        assert(!registerComponentObjectResult,                              `Registering an object fails when no component object id is provided.`, results)
 
-        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestObject`, null, `fragment`)
+        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`fragment`, `TestObject`, null)
 
-        assert(!registerComponentObjectResult,                              `Registering an object fails when no object is provided.`, results)
+        assert(!registerComponentObjectResult,                              `Registering an object fails when no component object is provided.`, results)
 
-        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestObject`, { test: `test` }, null)
+        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(null, `TestObject`, { test: `test` })
 
-        assert(!registerComponentObjectResult,                              `Registering an object fails when no fragment id is provided.`, results)
+        assert(!registerComponentObjectResult,                              `Registering an object fails when no component class is provided.`, results)
 
         window.$vanilla = null
 
         return results                                                                    
     }]),
     await test (`Unregister component object`, `Ensure a component's object can be successfully unregistered.`, [async () => {
-        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestObject`, { test: `test` }, `fragment`)
+        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`fragment`, `TestObject`, { test: `test` })
         let unregisterComponentObjectResult = VanillaComponentLifecycle.unregisterComponentObject(`TestObject`)
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(`TestObject`)
         let results = []
@@ -633,13 +633,13 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(unregisterComponentObjectResult,                             `Component object unregistered successfully.`, results)
         assert(!objectInRegistry,                                           `Component object in registry.`, results)
 
-        unregisterComponentObjectResult = VanillaComponentLifecycle.unregisterComponentObject(`TestObject`, { test: `test` }, `fragment`)
+        unregisterComponentObjectResult = VanillaComponentLifecycle.unregisterComponentObject(`fragment`, `TestObject`, { test: `test` })
 
         assert(!unregisterComponentObjectResult,                            `Unregistering an object fails when it is already unregistered.`, results)
 
         unregisterComponentObjectResult = VanillaComponentLifecycle.registerComponentObject()
 
-        assert(!unregisterComponentObjectResult,                            `Unegistering an object fails when no id is provided.`, results)
+        assert(!unregisterComponentObjectResult,                            `Unegistering an object fails when no component object id is provided.`, results)
 
         return results                                                                    
     }]),
@@ -673,7 +673,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         testingDOMElement.append(...new DOMParser().parseFromString(includeTagHTML, `text/html`).body.childNodes)
 
         let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, `TestComponent1`, componentClass, document.getElementById(`TestIncludeTag`))
-        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestComponent1`, componentObject, componentClass)
+        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(componentClass, `TestComponent1`, componentObject)
         let mountResult = VanillaComponentLifecycle.mount(`TestComponent1`)
         let componentObjectInfo = window.$vanilla.objectRegistry.get(`TestComponent1`)
 
@@ -747,8 +747,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         window.afterUnmount = false
         testingDOMElement.append(...new DOMParser().parseFromString(includeTagHTML, `text/html`).body.childNodes)
 
-        let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, `TestComponent1`, componentClass, document.getElementById(`TestIncludeTag`))
-        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestComponent1`, componentObject, componentClass)
+        let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, `TestComponent1`, document.getElementById(`TestIncludeTag`))
+        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(componentClass, `TestComponent1`, componentObject)
         let mountResult = VanillaComponentLifecycle.mount(`TestComponent1`)
         let unmountResult = VanillaComponentLifecycle.unmount(`TestComponent1`)
         let componentObjectInfo = window.$vanilla.objectRegistry.get(`TestComponent1`)
@@ -842,16 +842,198 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
         return results                                                                    
     }]),
 ])
-suite(`Test load file`, `Ensure files can be loaded.`, [
+suite(`Test Loader`, `Ensure Loader correctly processes include files.`, [
     await test (`Load file`, `Ensure files can be loaded.`, [async () => {
         let file = `./support-files/text.txt`
+        let text = await Loader.loadFile(file)
         let results = []
 
-        let text = await loadFile(file, (text) => {
-        })
         assert(text === `Text`,                                             `Text read from file.`, results)
+
+        try {
+            text = await Loader.loadFile(`no-such.file`)
+            console.log(text)
+        } catch (e) {
+            assert(true,                                                    `Loading non-existant file throws an error.`, results)
+        }
+
+        return results                                                                    
+    }]),    
+    await test (`Update include tree`, `Ensure include tree works correctly.`, [async () => {
+        Loader.includeTree = new IncludeTree()
+
+        let results = []
+        let newChildNode = Loader.updateIncludeTree(`parent`, `child`)
+
+        assert(newChildNode,                                                `Include tree was successfully updated.`, results)
+        assert(Loader.tree.nodes.length === 1,                              `Node added to include tree.`, results)
+        assert(Loader.tree.nodes[0].name === `parent`,                      `Parent added to include tree.`, results)
+
+        let parent = Loader.includeTree.getNodeByName(`parent`)
+        let child = Loader.includeTree.getNodeByName(`child`)
+
+        assert(parent,                                                      `Parent is in the tree.`, results)
+        assert(child,                                                       `Child is in the tree.`, results)
+        assert(!parent.parent,                                              `Parent does not have a parent.`, results)
+        assert(parent.children.length === 1,                                `Parent has one child.`, results)
+        assert(parent.children[0] === child,                                `Parent's child is the child node.`, results)
+        assert(child.parent,                                                `Child has a parent.`, results)
+        assert(child.parent === parent,                                     `Child's parent is the parent node.`, results)
+        assert(child.children.length === 0,                                 `Child has no children.`, results)
+
+        newChildNode = Loader.updateIncludeTree(`parent`, `child2`)
+
+        let child2 = Loader.includeTree.getNodeByName(`child2`)
+
+        assert(newChildNode,                                                `Node added to the tree.`, results)
+        assert(child2,                                                      `Child2 is in the tree.`, results)
+        assert(parent.children.length === 2,                                `Parent has two children.`, results)
+        assert(parent.children[1] === child2,                               `Parent's second child is the child2 node.`, results)
+        assert(child2.parent,                                               `Child2 has a parent.`, results)
+        assert(child2.parent === parent,                                    `Child2's parent is the parent node.`, results)
+
+        newChildNode = Loader.updateIncludeTree(`parent2`, `child3`)
+
+        let parent2 = Loader.includeTree.getNodeByName(`parent2`)
+        let child3 = Loader.includeTree.getNodeByName(`child3`)
+
+        assert(Loader.tree.nodes.length === 2,                              `Node added to tree.`, results)
+        assert(newChildNode,                                                `Node added to the tree.`, results)
+        assert(parent2,                                                     `Parent2 is in the tree.`, results)
+        assert(child3,                                                      `Child3 is in the tree.`, results)
+        assert(parent2.children.length === 1,                               `Parent2 has one child.`, results)
+        assert(parent2.children[0] === child3,                              `Parent2's child is the child3 node.`, results)
+        assert(child3.parent,                                               `Child3 has a parent.`, results)
+        assert(child3.parent === parent2,                                   `Child3's parent is the parent2 node.`, results)
+
+        newChildNode = Loader.updateIncludeTree(`child`, `grandchild`)
+
+        let grandchild = Loader.includeTree.getNodeByName(`grandchild`)
+
+        assert(newChildNode,                                                `Node added to the tree.`, results)
+        assert(grandchild,                                                  `Grandchild added to the tree.`, results)
+        assert(child.children.length === 1,                                 `Child has one child.`, results)
+        assert(child.children[0] === grandchild,                            `Child's child is the grandchild node.`, results)
+        assert(grandchild.parent,                                           `Grandchild has a parent.`, results)
+        assert(grandchild.parent === child,                                 `Grandchild's parent is the child node.`, results)
+
+        newChildNode = Loader.updateIncludeTree(`child`, `parent`)
+
+        assert(!newChildNode,                                               `Node not added to the tree when it causes recursion.`, results)
+
+        newChildNode = Loader.updateIncludeTree(`child2`, `parent`)
+
+        assert(!newChildNode,                                               `Node not added to the tree when it causes recursion.`, results)
+
+        newChildNode = Loader.updateIncludeTree(`grandchild`, `parent`)
+
+        assert(!newChildNode,                                               `Node not added to the tree when it causes recursion.`, results)
 
         return results                                                                    
     }]),
+    await test (`Validate include attributes`, `Ensure include tag attributes are correctly validated.`, [async () => {
+        let results = []
+        let testingDOM = document.getElementById(`TestingDOM`)
+        let div = document.createElement('div')
+
+        div.setAttribute(`src`, `src value`)
+        div.setAttribute(`include-in`, `include-in value`)
+
+        let [src, includeIn, componentClass, componentObjectId, repeat] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src == `src value`,                                          `Src value read correctly.`, results)
+        assert(includeIn == `include-in value`,                             `Include-in value read correctly.`, results)
+        assert(componentClass === undefined,                                `No component-class attribute handled correctly.`, results)
+        assert(componentObjectId === undefined,                             `No component-id attribute handled correctly.`, results)
+        assert(repeat === 1,                                                `Repeat defaults to 1.`, results)
+
+        div.removeAttribute(`src`)
+
+        let [src1, includeIn1, componentClass1, componentObjectId1, repeat1] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src1 == null,                                                `Src is null when src is missing.`, results)
+        assert(includeIn1 == null,                                          `Include-in is null when src is missing.`, results)
+        assert(componentClass1 === null,                                    `component-class is null when src is missing.`, results)
+        assert(componentObjectId1 === null,                                 `component-id is null when src is missing.`, results)
+        assert(repeat1 === null,                                            `Repeat is null when src is missing.`, results)
+
+        div.setAttribute(`src`, `src value`)
+        div.removeAttribute(`include-in`)
+
+        let [src2, includeIn2, componentClass2, componentObjectId2, repeat2] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src2 == null,                                                `Src is null when include-in is missing.`, results)
+        assert(includeIn2 == null,                                          `Include-in is null when include-in is missing.`, results)
+        assert(componentClass2 === null,                                    `Component-class is null when include-in is missing.`, results)
+        assert(componentObjectId2 === null,                                 `Component-id is null when include-in is missing.`, results)
+        assert(repeat2 === null,                                            `Repeat is null when include-in is missing.`, results)
+
+        div.setAttribute(`include-in`, `include-in value`)
+        div.setAttribute(`component-class`, `component-class value`)
+        div.setAttribute(`component-id`, `component-id value`)
+
+        let [src3, includeIn3, componentClass3, componentObjectId3, repeat3] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src3 == `src value`,                                         `Src value read correctly.`, results)
+        assert(includeIn3 == `include-in value`,                            `Include-in value read correctly.`, results)
+        assert(componentClass3 === `component-class value`,                 `Component-class value read correctly.`, results)
+        assert(componentObjectId3 === `component-id value`,                 `Component-id value read correctly.`, results)
+        assert(repeat3 === 1,                                               `Repeat defaults to 1.`, results)
+
+        div.removeAttribute(`component-class`)
+
+        let [src4, includeIn4, componentClass4, componentObjectId4, repeat4] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src4 == null,                                                `Src is null when component-class is missing and component-id exists.`, results)
+        assert(includeIn4 == null,                                          `Include-in is null when component-class is missing and component-id exists.`, results)
+        assert(componentClass4 === null,                                    `component-class is null when component-class is missing and component-id exists.`, results)
+        assert(componentObjectId4 === null,                                 `component-id is null when component-class is missing and component-id exists.`, results)
+        assert(repeat4 === null,                                            `Repeat is null when component-class is missing and component-id exists.`, results)
+
+        div.setAttribute(`component-class`, `component-class value`)
+        div.removeAttribute(`component-id`)
+
+        let [src5, includeIn5, componentClass5, componentObjectId5, repeat5] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src5 == null,                                                `Src is null when component-class is exists and component-id is missing.`, results)
+        assert(includeIn5 == null,                                          `Include-in is null when component-class exists and component-id is missing.`, results)
+        assert(componentClass5 === null,                                    `component-class is null when component-class exists and component-id is missing.`, results)
+        assert(componentObjectId5 === null,                                 `component-id is null when component-class exists and component-id is missing.`, results)
+        assert(repeat5 === null,                                            `Repeat is null when component-class exists and component-id is missing.`, results)
+
+        div.removeAttribute(`component-class`)
+        div.removeAttribute(`component-id`)
+        div.setAttribute(`repeat`, `5`)
+
+        let [src6, includeIn6, componentClass6, componentObjectId6, repeat6] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src6 == `src value`,                                         `Src value read correctly.`, results)
+        assert(includeIn6 == `include-in value`,                            `Include-in value read correctly.`, results)
+        assert(componentClass6 === undefined,                               `No component-class attribute handled correctly.`, results)
+        assert(componentObjectId6 === undefined,                            `No component-id attribute handled correctly.`, results)
+        assert(repeat6 === 5,                                               `Repeat attribute read correctly.`, results)
+
+        div.setAttribute(`repeat`, `JUNK`)
+
+        let [src7, includeIn7, componentClass7, componentObjectId7, repeat7] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src7 == null,                                                `Src is null when repeat is NaN.`, results)
+        assert(includeIn7 == null,                                          `Include-in is null when repeat is NaN.`, results)
+        assert(componentClass7 === null,                                    `component-class is null when repeat is NaN.`, results)
+        assert(componentObjectId7 === null,                                 `component-id is null when repeat is NaN.`, results)
+        assert(repeat7 === null,                                            `Repeat is null when repeat is NaN.`, results)
+
+        div.setAttribute(`repeat`, `0`)
+
+        let [src8, includeIn8, componentClass8, componentObjectId8, repeat8] = Loader.validateIncludeAttributes(div.attributes)
+
+        assert(src8 == null,                                                `Src is null when repeat is less than 1.`, results)
+        assert(includeIn8 == null,                                          `Include-in is null when repeat is less than 1.`, results)
+        assert(componentClass8 === null,                                    `component-class is null when repeat is less than 1.`, results)
+        assert(componentObjectId8 === null,                                 `component-id is null when repeat is less than 1.`, results)
+        assert(repeat8 === null,                                            `Repeat is null when repeat is less than 1.`, results)
+
+        return results                                                                    
+    }]),    
 ])
 })
