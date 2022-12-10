@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
-    test (`Create`, `Ensure IncludeNode objects are properly created.`, [() => {
+    await test (`Create`, `Ensure IncludeNode objects are properly created.`, [async () => {
         let includeNode = new IncludeNode(`TestIncludeNode`)
         let results = []
 
@@ -13,7 +13,7 @@ suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
 
         return results
     }]),
-    test (`Add child nodes`, `Ensure adding child nodes works correctly.`, [() => {
+    await test (`Add child nodes`, `Ensure adding child nodes works correctly.`, [async () => {
         let includeNode = new IncludeNode(`TestIncludeNode`)
         let results = []
 
@@ -28,7 +28,7 @@ suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
 
         return results                                                                    
     }]),
-    test (`Ancestors`, `Ensure ancestor nodes works correctly.`, [() => {
+    await test (`Ancestors`, `Ensure ancestor nodes works correctly.`, [async () => {
         let includeNode = new IncludeNode(`TestIncludeNode`)
         let results = []
 
@@ -62,7 +62,7 @@ suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
 
         return results                                                                    
     }]),
-    test (`Descendants`, `Ensure descendant nodes works correctly.`, [() => {
+    await test (`Descendants`, `Ensure descendant nodes works correctly.`, [async () => {
         let includeNode = new IncludeNode(`TestIncludeNode`)
         let results = []
 
@@ -82,7 +82,7 @@ suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
 ])
 
 suite(`Test IncludeTree`, `Ensure IncludeTree is working.`, [
-    test (`Create`, `Ensure IncludeTree objects are properly created.`, [() => {
+    await test (`Create`, `Ensure IncludeTree objects are properly created.`, [async () => {
         const includeTree = new IncludeTree()
         let results = []
 
@@ -93,7 +93,7 @@ suite(`Test IncludeTree`, `Ensure IncludeTree is working.`, [
 
         return results                                                                    
     }]),
-    test (`Add nodes`, `Ensure adding nodes works correctly.`, [() => {
+    await test (`Add nodes`, `Ensure adding nodes works correctly.`, [async () => {
         const includeTree = new IncludeTree()
         let includeNode = new IncludeNode(`TestIncludeNode`)
         let results = []
@@ -110,7 +110,7 @@ suite(`Test IncludeTree`, `Ensure IncludeTree is working.`, [
 ])
 
 suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is working.`, [
-    test (`Compile`, `Ensure html is properly compiled.`, [() => {
+    await test (`Compile`, `Ensure html is properly compiled.`, [async () => {
         let html = `<div>First Div</div><span>Parent Div<div>Child Div</div></span>`
         let frag = VanillaComponentLifecycle.compile(html)
         let results = []
@@ -124,7 +124,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         return results                                                                    
     }]),
-    test (`Replace Node Values`, `Ensure node values are properly replaced.`, [() => {
+    await test (`Replace Node Values`, `Ensure node values are properly replaced.`, [async () => {
         let text = `Original Text {field1}`
         let textChild = `Original Text {field2}`
         let testDiv = document.createElement('div')
@@ -154,7 +154,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         return results                                                                    
     }]),
 
-    test (`Replace Attribute Values`, `Ensure attribute values are properly replaced.`, [() => {
+    await test (`Replace Attribute Values`, `Ensure attribute values are properly replaced.`, [async () => {
         let text = `Original Text {field1}`
         let textChild = `Original Text {field2}`
         let testDiv = document.createElement('div')
@@ -187,7 +187,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         return results                                                                    
     }]),
-    test (`Wrap props`, `Ensure component props are properly wrapped.`, [() => {
+    await test (`Wrap props`, `Ensure component props are properly wrapped.`, [async () => {
         class TestComponent{
             className(){return this.constructor.name}
             initialize() { if (window.initialized !== undefined) { window.initialized = true }}
@@ -211,7 +211,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         return results                                                                    
     }]),
-    test (`Wrap vars`, `Ensure component vars are properly wrapped.`, [() => {
+    await test (`Wrap vars`, `Ensure component vars are properly wrapped.`, [async () => {
         class TestComponent{
             className(){return this.constructor.name}
             initialize() { if (window.initialized !== undefined) { window.initialized = true }}
@@ -235,7 +235,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         return results                                                                    
     }]),
-    test (`Register DOM fragment`, `Ensure component DOM fragment is properly registered.`, [() => {
+    await test (`Register DOM fragment`, `Ensure component DOM fragment is properly registered.`, [async () => {
         let html = `<component><script>
             class TestComponent{
                 className() { return this.constructor.name }
@@ -494,7 +494,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         cleanup()
         return results                                                                    
     }]),
-    test (`Unregister DOM fragment`, `Ensure component DOM fragment is properly unregistered.`, [() => {
+    await test (`Unregister DOM fragment`, `Ensure component DOM fragment is properly unregistered.`, [async () => {
         let html = `<component><script>
             class TestComponent{
                 className() { return this.constructor.name }
@@ -546,7 +546,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         return results                                                                    
     }]),
-    test (`Create component object`, `Ensure a component's object can be successfully created.`, [() => {
+    await test (`Create component object`, `Ensure a component's object can be successfully created.`, [async () => {
         let html = `<component><script>
             class TestComponent {
                 className() { return this.constructor.name }
@@ -595,7 +595,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         
         return results                                                                    
     }]),
-    test (`Register component object`, `Ensure a component's object can be successfully registered.`, [() => {
+    await test (`Register component object`, `Ensure a component's object can be successfully registered.`, [async () => {
         let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestObject`, { test: `test` }, `fragment`)
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(`TestObject`)
         let results = []
@@ -623,7 +623,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         return results                                                                    
     }]),
-    test (`Unregister component object`, `Ensure a component's object can be successfully unregistered.`, [() => {
+    await test (`Unregister component object`, `Ensure a component's object can be successfully unregistered.`, [async () => {
         let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`TestObject`, { test: `test` }, `fragment`)
         let unregisterComponentObjectResult = VanillaComponentLifecycle.unregisterComponentObject(`TestObject`)
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(`TestObject`)
@@ -643,7 +643,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         return results                                                                    
     }]),
-    test (`Mount component`, `Ensure a component can be successfully mounted.`, [() => {
+    await test (`Mount component`, `Ensure a component can be successfully mounted.`, [async () => {
         let html = `<component><script>
             class TestComponent{
                 className() { return this.constructor.name }
@@ -718,7 +718,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         return results                                                                    
     }]),
-    test (`Unmount component`, `Ensure a component can be successfully unmounted.`, [() => {
+    await test (`Unmount component`, `Ensure a component can be successfully unmounted.`, [async () => {
         let html = `<component><script>
             class TestComponent{
                 className() { return this.constructor.name }
@@ -797,7 +797,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
     }]),
 ])
 suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
-    test (`Get component fragment`, `Ensure component fragments can be retrieved from the component fragment registry.`, [() => {
+    await test (`Get component fragment`, `Ensure component fragments can be retrieved from the component fragment registry.`, [async () => {
         window.$vanilla = {}
         window.$vanilla.fragmentRegistry = new Map()
         window.$vanilla.fragmentRegistry.set(`TestFragment`, { data: 'data'})
@@ -819,7 +819,7 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
 
         return results                                                                    
     }]),
-    test (`Get component object`, `Ensure component objects can be retrieved from the component object registry.`, [() => {
+    await test (`Get component object`, `Ensure component objects can be retrieved from the component object registry.`, [async () => {
         window.$vanilla = {}
         window.$vanilla.objectRegistry = new Map()
         window.$vanilla.objectRegistry.set(`TestObject`, { componentObject: { data: 'data'}})
@@ -843,13 +843,13 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
     }]),
 ])
 suite(`Test load file`, `Ensure files can be loaded.`, [
-    test (`Load file`, `Ensure files can be loaded.`, [() => {
+    await test (`Load file`, `Ensure files can be loaded.`, [async () => {
         let file = `./support-files/text.txt`
         let results = []
 
-        loadFile(file, (text) => {
-            assert(text === `Text`,                                         `Text read from file.`, results)
+        let text = await loadFile(file, (text) => {
         })
+        assert(text === `Text`,                                             `Text read from file.`, results)
 
         return results                                                                    
     }]),

@@ -1,4 +1,4 @@
-const assert = (isTrue, optionalDescription, optionalResults) => {
+const assert = async (isTrue, optionalDescription, optionalResults) => {
   if (optionalDescription && optionalResults) { optionalResults.push(optionalDescription) }
   if (!isTrue) {
     if (optionalResults) {
@@ -11,7 +11,7 @@ const assert = (isTrue, optionalDescription, optionalResults) => {
   }
 }
 
-const test = (name, description, tests) => {
+const test = async (name, description, tests) => {
   let results = []
   let result = {
     name,
@@ -23,7 +23,7 @@ const test = (name, description, tests) => {
   try {
     for (let loop = 0; loop < tests.length; loop++) {
       let start = Date.now()
-      let testResults = tests[loop]()
+      let testResults = await tests[loop]()
       result.duration = Date.now() - start
       result.passed = true
       result.assertResults = result.assertResults.concat(testResults)
@@ -40,7 +40,7 @@ const test = (name, description, tests) => {
   return results
 }
 
-const suite = (name, description, testResults) => {
+const suite = async (name, description, testResults) => {
   const _createCardSuiteDiv = (passed) => {
     let suiteDiv = document.createElement('div')
     let suiteDivName = document.createElement('div')

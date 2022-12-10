@@ -443,14 +443,13 @@ class Vanilla {
     }
 }
 
-const loadFile = (filename) => {
-    fetch(filename)
-        .then(response => response.text())
-        .then(text => callback(text))
-}
-const loadFileAsync = async function (filename) {
+const loadFile = async function (filename) {
     try {
         let response = await fetch(filename)
+
+        if (!response.ok) {
+            throw new Error('Network response was not OK while loading ${filename}.');
+        }
         return response.text
     } catch (e) {
         console.error(`Error fetching file ${filename}.`)
@@ -458,8 +457,8 @@ const loadFileAsync = async function (filename) {
     }
 }
 
-const loadIncludes = () => {
-    const _loadIncludes = (previousIncludeTree) => {
+const loadIncludes = async function () {
+    const _loadIncludes = async function (previousIncludeTree) {
         let includes = document.getElementsByTagName('include')
         if (0 === includes.length) {return}
         let includeTree = previousIncludeTree
@@ -473,16 +472,15 @@ const loadIncludes = () => {
             console.error(`Include tag causes infinite recursion. Include processing halted. Id of the bad include tag: ${includeId}. Include file causing recursion: ${src}.`)
             return
         }
-        loadFile(include.attributes.src.value, function(text){
-            include.insertAdjacentHTML('afterend', text)
-            include.remove()
-            _loadIncludes(includeTree)
-        })
+        let text = await loadFile(include.attributes.src.value)
+        include.insertAdjacentHTML('afterend', text)
+        include.remove()
+        _loadIncludes(includeTree)
     }
     _loadIncludes(new IncludeTree())
 }
 
-const loadIncludeComponents = () => {
+const loadIncludeComponents = async function () {
     const _validateIncudeComponentAttributes = (attributes) => {
         if (!attributes) {
             console.error(`Include-component missing required attributes 'src', 'component-id', 'component', and 'component-id'. Include-component processing halted.`)
@@ -526,7 +524,7 @@ const loadIncludeComponents = () => {
         node.addChild(src)
         return true
     }
-    const _loadIncludeComponents = (previousIncludeTree) => {
+    const _loadIncludeComponents = async function (previousIncludeTree) {
         let includes = document.getElementsByTagName('include-component')
 
         if (0 === includes.length) {return}
@@ -555,38 +553,37 @@ const loadIncludeComponents = () => {
             return
         }
 
-        loadFile(include.attributes.src.value, function(text){
-            let fragment = VanillaComponentLifecycle.compile(text)
-            let fragmentRegistered = VanillaComponentLifecycle.registerDOMFragment(fragmentId, fragment, false)
+        let text = await loadFile(include.attributes.src.value)
+        let fragment = VanillaComponentLifecycle.compile(text)
+        let fragmentRegistered = VanillaComponentLifecycle.registerDOMFragment(fragmentId, fragment, false)
 
-            if (!fragmentRegistered) {
-                console.error(`Failed to register component fragment. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
-                return
-            }
+        if (!fragmentRegistered) {
+            console.error(`Failed to register component fragment. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+            return
+        }
 
-            let componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, componentObjectId, fragmentId, include)
+        let componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, componentObjectId, fragmentId, include)
 
-            if (!componentObject) {
-                console.error(`Failed to create component. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
-                return
-            }
+        if (!componentObject) {
+            console.error(`Failed to create component. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+            return
+        }
 
-            let componentObjectRegistered = VanillaComponentLifecycle.registerComponentObject(componentObjectId, componentObject, fragmentId )
+        let componentObjectRegistered = VanillaComponentLifecycle.registerComponentObject(componentObjectId, componentObject, fragmentId )
 
-            if (!componentObjectRegistered) {
-                console.error(`Failed to register component object. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
-                return
-            }
-            
-            let componentMounted = VanillaComponentLifecycle.new_mountComponent(componentObjectId)
+        if (!componentObjectRegistered) {
+            console.error(`Failed to register component object. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+            return
+        }
+        
+        let componentMounted = VanillaComponentLifecycle.mount(componentObjectId)
 
-            if (!componentMounted) {
-                console.error(`Failed to mount component object. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
-                return
-            }
- 
-            _loadIncludeComponents(includeTree)
-        })
+        if (!componentMounted) {
+            console.error(`Failed to mount component object. Include-component processing halted. Component name: ${fragmentId}. Id of the bad include tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
+            return
+        }
+
+        _loadIncludeComponents(includeTree)
     }
     _loadIncludeComponents(new IncludeTree())
 }
