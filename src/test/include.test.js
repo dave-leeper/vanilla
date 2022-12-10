@@ -109,7 +109,7 @@ suite(`Test IncludeTree`, `Ensure IncludeTree is working.`, [
     }]),
 ])
 
-suite(`Test VanillaComponent`, `Ensure VanillaComponent is working.`, [
+suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is working.`, [
     test (`Compile`, `Ensure html is properly compiled.`, [() => {
         let html = `<div>First Div</div><span>Parent Div<div>Child Div</div></span>`
         let frag = VanillaComponentLifecycle.compile(html)
@@ -687,7 +687,7 @@ suite(`Test VanillaComponent`, `Ensure VanillaComponent is working.`, [
         assert(!mountResult,                                                `Mount fails when no id is provided.`, results)
 
         window.$vanilla.objectRegistry.delete(`TestComponent1`)
-        mountResult = VanillaComponentLifecycle.mount()
+        mountResult = VanillaComponentLifecycle.mount(`TestComponent1`)
 
         assert(!mountResult,                                                `Mount fails when component is not registered.`, results)
 
@@ -759,33 +759,32 @@ suite(`Test VanillaComponent`, `Ensure VanillaComponent is working.`, [
         assert(!componentObjectInfo?.mounted,                               `Component marked as unmounted.`, results)
 
     
-        /*
-        mountResult = VanillaComponentLifecycle.mount()
+        unmountResult = VanillaComponentLifecycle.unmount()
 
-        assert(!mountResult,                                                `Mount fails when no id is provided.`, results)
+        assert(!unmountResult,                                              `Unmount fails when no id is provided.`, results)
 
         window.$vanilla.objectRegistry.delete(`TestComponent1`)
-        mountResult = VanillaComponentLifecycle.mount()
+        unmountResult = VanillaComponentLifecycle.unmount()
 
-        assert(!mountResult,                                                `Mount fails when component is not registered.`, results)
+        assert(!unmountResult,                                              `Unmount fails when component is not registered.`, results)
 
         window.$vanilla.objectRegistry.set(`TestComponent1`, componentObjectInfo)
 
         let framentRegisryObject = window.$vanilla.fragmentRegistry.get(componentClass)
 
         window.$vanilla.fragmentRegistry.delete(componentClass)
-        mountResult = VanillaComponentLifecycle.mount(`TestComponent1`)
+        unmountResult = VanillaComponentLifecycle.unmount(`TestComponent1`)
 
-        assert(!mountResult,                                                `Mount fails when fragment is not registered.`, results)
+        assert(!unmountResult,                                              `Unmount fails when fragment is not registered.`, results)
 
         window.$vanilla.fragmentRegistry.set(componentClass, framentRegisryObject)
 
         let markerElement = document.getElementById(`-VanillaComponentMarkerTestComponent1`)
 
         markerElement.remove()
-        mountResult = VanillaComponentLifecycle.mount(`TestComponent1`)
+        unmountResult = VanillaComponentLifecycle.unmount(`TestComponent1`)
 
-        assert(!mountResult,                                                `Mount fails when marker tag is not in DOM.`, results)
+        assert(!unmountResult,                                              `Unmount fails when marker tag is not in DOM.`, results)
 
         let testingDOMNode = document.getElementById(`TestingDOM`)
 
@@ -793,245 +792,66 @@ suite(`Test VanillaComponent`, `Ensure VanillaComponent is working.`, [
         while (testingDOMNode.firstChild) {
             testingDOMNode.removeChild(testingDOMNode.firstChild)
         }
-        */
 
         return results                                                                    
     }]),
-    /*
-    test (`Unpack Component Fragment`, `Ensure components vars are properly unpacked from html text.`, [() => {
-        let html = `<component><script>
-            class TestComponent{
-                className() { return this.constructor.name }
-                initialize() { if (window.initialized !== undefined) { window.initialized = true } }
-                beforeMount() { if (window.beforeMount !== undefined) { window.beforeMount = true } }
-                afterMount() { if (window.afterMount !== undefined) { window.afterMount = true } }
-                beforeUnmount() { if (window.beforeUnmount !== undefined) { window.beforeUnmount = true } }
-                afterUnmount() { if (window.afterUnmount !== undefined) { window.afterUnmount = true } }
-                vars = { x: 'var1', y: 'var2' } 
-                props = { prop1: 'value1', prop2: 'value2' }
-            }</script>
-            <test></test>
-            <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
-                <button id='test-button' name="{y}" class="buttonStyle" onclick="console.log('clicked')">{x}</button>
-                <div id='test-div-1'>{y}</div>
-                <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
-        let frag = document.createDocumentFragment()
-        let marker = document.createElement('script')
+])
+suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
+    test (`Get component fragment`, `Ensure component fragments can be retrieved from the component fragment registry.`, [() => {
+        window.$vanilla = {}
+        window.$vanilla.fragmentRegistry = new Map()
+        window.$vanilla.fragmentRegistry.set(`TestFragment`, { data: 'data'})
+
+        let fragment =  Vanilla.getComponentFragment(`TestFragment`)
         let results = []
 
-        frag.append(...new DOMParser().parseFromString(html, `text/html`).body.childNodes)
-        marker.id = `-UnpackComponentFragmentMarker`
-        marker.type = 'text/javascript'
-        document.getElementById(`TestingDOM`).appendChild(marker)
+        assert(fragment,                                                    `An object was retrieved from the component fragment registry.`, results)
+        assert(fragment.data === 'data',                                    `Correct object retrieved from the component fragment registry.`, results)
 
-        let newElements = VanillaComponentLifecycle.unpackComponentFragment(frag, marker)
-        let markerParent = document.getElementById(`TestingDOM`)
-        let markup = document.querySelectorAll('markup')
-        let buttons = markerParent.querySelectorAll('button')
-        let divs = markerParent.querySelectorAll('div')
-        let styles = markerParent.querySelectorAll('style')
-        let scripts = markerParent.querySelectorAll('script')
-        let components = markerParent.querySelectorAll('component')
+        fragment =  Vanilla.getComponentFragment()
 
-        assert(newElements.length === 3,                                    `HTML components unpacked from fragment.`, results)
-        assert(newElements[0].tagName === `BUTTON`,                         `Button unpacked.`, results)
-        assert(newElements[1].tagName === `DIV`,                            `First div unpacked.`, results)
-        assert(newElements[2].tagName === `DIV`,                            `Second div unpacked.`, results)
-        assert(newElements[2].querySelectorAll('div').length === 1,         `Third div unpacked.`, results)
-        assert(markup.length === 0,                                         `No markup node in html.`, results)
-        assert(buttons.length === 1,                                        `Button placed in html.`, results)
-        assert(buttons[0].id === 'test-button',                             `Button id is correct.`, results)
-        assert(divs.length === 3,                                           `Divs placed in html.`, results)
-        assert(divs[0].id === 'test-div-1',                                 `First div id is correct.`, results)
-        assert(divs[1].id === 'test-div-2',                                 `Second div id is correct.`, results)
-        assert(divs[2].id === 'test-div-3',                                 `Third div id is correct.`, results)
-        assert(styles.length === 1,                                         `Style placed in html.`, results)
-        assert(scripts.length === 2,                                        `Marker script still in html. Component script added to html`, results)
-        assert(scripts[0].id === `-UnpackComponentFragmentMarker`,          `Marker script still in html.`, results)
-        assert(scripts[0].nextSibling === styles[0],                        `Style correctly placed in html.`, results)
-        assert(styles[0].nextSibling === buttons[0],                        `Button correctly placed in html.`, results)
-        assert(buttons[0].nextSibling === divs[0],                          `First div correctly placed in html.`, results)
-        assert(divs[0].nextSibling === divs[1],                             `Second div correctly placed in html.`, results)
-        assert(divs[1].querySelectorAll('div')[0] === divs[2],              `Third div correctly placed in html.`, results)
+        assert(!fragment,                                                   `Get component fragment fails when no id is provided.`, results)
 
-        buttons[0].remove()
-        divs[0].remove()
-        divs[1].remove()
-        styles[0].remove()
-        scripts[0].remove()
-        scripts[1].remove()
-        components[0].remove()
+        window.$vanilla.fragmentRegistry.delete(`TestFragment`)
+        fragment =  Vanilla.getComponentFragment(`TestFragment`)
+
+        assert(!fragment,                                                   `Get component fragment fails when object not in the component fragment registry.`, results)
 
         return results                                                                    
     }]),
-    test (`Register Component`, `Ensure components are properly registered.`, [() => {
-        class TestComponent{
-            className(){return this.constructor.name}
-            initialize() { if (window.initialized !== undefined) { window.initialized = true }}
-            beforeMount() { if (window.beforeMount !== undefined) { window.beforeMount = true }}
-            afterMount() { if (window.afterMount !== undefined) { window.afterMount = true }}
-            beforeUnmount() { if (window.beforeUnmount !== undefined) { window.beforeUnmount = true } }
-            afterUnmount() { if (window.afterUnmount !== undefined) { window.afterUnmount = true } }
-            vars = { x: 'var1', y: 'var2' } 
-            props = { prop1: 'value1', prop2: 'value2' }
-        }
-        let html = `<component><script>
-            class TestComponent{
-                className() { return this.constructor.name }
-                initialize() { if (window.initialized !== undefined) { window.initialized = true } }
-                beforeMount() { if (window.beforeMount !== undefined) { window.beforeMount = true } }
-                afterMount() { if (window.afterMount !== undefined) { window.afterMount = true } }
-                beforeUnmount() { if (window.beforeUnmount !== undefined) { window.beforeUnmount = true } }
-                afterUnmount() { if (window.afterUnmount !== undefined) { window.afterUnmount = true } }
-                vars = { x: 'var1', y: 'var2' } 
-                props = { prop1: 'value1', prop2: 'value2' }
-            }</script>
-            <test></test>
-            <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
-                <button id='test-button' name="{y}" class="buttonStyle" onclick="console.log('clicked')">{x}</button>
-                <div id='test-div-1'>{y}</div>
-                <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
-        let includeHTML = document.createElement('include-component')
-        let frag = document.createDocumentFragment()
-        let testingDOMNode = document.getElementById(`TestingDOM`)
-        let marker = document.createElement('script')
-        let testComponent = new TestComponent()
+    test (`Get component object`, `Ensure component objects can be retrieved from the component object registry.`, [() => {
+        window.$vanilla = {}
+        window.$vanilla.objectRegistry = new Map()
+        window.$vanilla.objectRegistry.set(`TestObject`, { componentObject: { data: 'data'}})
+
+        let object =  Vanilla.getComponentObject(`TestObject`)
         let results = []
 
-        includeHTML.setAttribute(`src`, `./no-such-file.html`)
-        includeHTML.setAttribute(`component`, `TestComponent`)
-        includeHTML.setAttribute(`component-id`, `TestComponent`)
-        testingDOMNode.appendChild(includeHTML)
-        marker.id = `-UnpackComponentFragmentMarker`
-        marker.type = 'text/javascript'
-        testingDOMNode.appendChild(marker)
-        frag.append(...new DOMParser().parseFromString(html, `text/html`).body.childNodes)
+        assert(object,                                                      `An object was retrieved from the component object registry.`, results)
+        assert(object.data === 'data',                                      `Correct object retrieved from the component object registry.`, results)
 
-        let componentNodes = VanillaComponentLifecycle.unpackComponentFragment(frag, marker)
-        let result = VanillaComponentLifecycle.registerComponent(`TestComponent`, testComponent, componentNodes)
+        object =  Vanilla.getComponentObject()
 
-        assert(result,                                                      `Component registered successfully.`, results)
-        assert(window.$vanilla.registry,                                    `Component registery exists.`, results)
-        
-        let registryInfo = window.$vanilla.registry.get(`TestComponent`)
+        assert(!object,                                                     `Get component object fails when no id is provided.`, results)
 
-        assert(registryInfo,                                                `Entry for component is in registry.`, results)
-        assert(registryInfo.componentObject === testComponent,              `Component object is in registry.`, results)
-        assert(registryInfo.nodes === componentNodes,                       `Component DOM nodes are in registry.`, results)
-        result = VanillaComponentLifecycle.registerComponent(`TestComponent`, testComponent, componentNodes)
-        assert(!result,                                                     `Registering a compoent a second time should not work.`, results)
-        result = VanillaComponentLifecycle.registerComponent(null, testComponent, componentNodes)
-        assert(!result,                                                     `Registering without an id should not work.`, results)
-        result = VanillaComponentLifecycle.registerComponent(`TestComponent`, null, componentNodes)
-        assert(!result,                                                     `Registering without a component object should not work.`, results)
-        result = VanillaComponentLifecycle.registerComponent(`TestComponent`, testComponent, null)
-        assert(!result,                                                     `Registering without component nodes should not work.`, results)
+        window.$vanilla.objectRegistry.delete(`TestObject`)
+        object =  Vanilla.getComponentFragment(`TestObject`)
 
-        window.$vanilla = undefined
-        while (testingDOMNode.firstChild) {
-            testingDOMNode.removeChild(testingDOMNode.firstChild)
-        }
+        assert(!object,                                                     `Get component object fails when object not in the component object registry.`, results)
 
         return results                                                                    
     }]),
-    test (`Mount Component`, `Ensure components are properly mounted.`, [() => {
-        class TestComponent{
-            className(){return this.constructor.name}
-            initialize() { if (window.initialized !== undefined) { window.initialized = true }}
-            beforeMount() { beforeMountCalled = true }
-            afterMount() { afterMountCalled = true}
-            beforeUnmount() { if (window.afterMount !== undefined) { window.afterMount = true }}
-            afterUnmount() { if (window.afterMount !== undefined) { window.afterMount = true }}
-            vars = { x: 'var1', y: 'var2' } 
-            props = { prop1: 'value1', prop2: 'value2' }
-        }
-        let html = `<component><script>
-            class TestComponent{
-                className() { return this.constructor.name }
-                initialize() { if (window.initialized !== undefined) { window.initialized = true } }
-                beforeMount() { beforeMountCalled = true }
-                afterMount() { afterMountCalled = true }
-                beforeUnmount() { if (window.beforeUnmount !== undefined) { window.beforeUnmount = true } }
-                afterUnmount() { if (window.afterUnmount !== undefined) { window.afterUnmount = true } }
-                vars = { x: 'var1', y: 'var2' } 
-                props = { prop1: 'value1', prop2: 'value2' }
-            }</script>
-            <test></test>
-            <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
-                <button id='test-button' name="{y}" class="buttonStyle" onclick="console.log('clicked')">{x}</button>
-                <div id='test-div-1'>{y}</div>
-                <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
-        let includeHTML = document.createElement('include-component')
-        let frag = document.createDocumentFragment()
-        let testingDOMNode = document.getElementById(`TestingDOM`)
-        let marker = document.createElement('script')
-        let testComponent = new TestComponent()
-        let id = `TestComponent`
-        let beforeMountCalled = false
-        let afterMountCalled = false
+])
+suite(`Test load file`, `Ensure files can be loaded.`, [
+    test (`Load file`, `Ensure files can be loaded.`, [() => {
+        let file = `./support-files/text.txt`
         let results = []
 
-        includeHTML.setAttribute(`src`, `./no-such-file.html`)
-        includeHTML.setAttribute(`component`, `TestComponent`)
-        includeHTML.setAttribute(`component-id`, `TestComponent`)
-        testingDOMNode.appendChild(includeHTML)
-        marker.id = `-VanillaComponent${id}`
-        marker.type = 'text/javascript'
-        testingDOMNode.appendChild(marker)
-        frag.append(...new DOMParser().parseFromString(html, `text/html`).body.childNodes)
-
-        let componentNodes = VanillaComponentLifecycle.unpackComponentFragment(frag, marker)
-        let registerResult = VanillaComponentLifecycle.registerComponent(id, testComponent, componentNodes)
-        let registryInfo = window.$vanilla.registry.get(`TestComponent`)
-        assert(registryInfo.mounted === false,                              `Component is not mounted after registering.`, results)
-
-        let result = VanillaComponentLifecycle.mountComponent(id)
-        let markerParent = document.getElementById(`TestingDOM`)
-        let markup = document.querySelectorAll('markup')
-        let buttons = markerParent.querySelectorAll('button')
-        let divs = markerParent.querySelectorAll('div')
-        let styles = markerParent.querySelectorAll('style')
-        let scripts = markerParent.querySelectorAll('script')
-
-        registryInfo = window.$vanilla.registry.get(`TestComponent`)
-        assert(result,                                                      `Component mounted successfully.`, results)
-        assert(beforeMountCalled,                                           `Component's beforeMount() method was called.`, results)
-        assert(afterMountCalled,                                            `Component's afterMount() method was called.`, results)
-        assert(registryInfo.mounted === true,                               `Component is mounted after call to mountComponent().`, results)
-        assert(markup.length === 0,                                         `No markup node in html.`, results)
-        assert(buttons.length === 1,                                        `Button placed in html.`, results)
-        assert(buttons[0].id === 'test-button',                             `Button id is correct.`, results)
-        assert(divs.length === 3,                                           `Divs placed in html.`, results)
-        assert(divs[0].id === 'test-div-1',                                 `First div id is correct.`, results)
-        assert(divs[1].id === 'test-div-2',                                 `Second div id is correct.`, results)
-        assert(divs[2].id === 'test-div-3',                                 `Third div id is correct.`, results)
-        assert(styles.length === 1,                                         `Style placed in html.`, results)
-        assert(scripts.length === 2,                                        `Marker script still in html. Component script added to html`, results)
-        assert(scripts[0].id === `-VanillaComponent${id}`,                  `Marker script still in html.`, results)
-        assert(buttons[0].nextSibling === divs[0],                          `First div correctly placed in html.`, results)
-        assert(divs[0].nextSibling === divs[1],                             `Second div correctly placed in html.`, results)
-        assert(divs[1].querySelectorAll('div')[0] === divs[2],              `Third div correctly placed in html.`, results)
-        result = VanillaComponentLifecycle.mountComponent(id)
-        assert(!result,                                                     `Mounted component cannot be mounted again.`, results)
-        result = VanillaComponentLifecycle.mountComponent(`badid`)
-        assert(!result,                                                     `Invalid ids abort the mount.`, results)
-        markerParent.removeChild(scripts[0])
-        result = VanillaComponentLifecycle.mountComponent(id)
-        assert(!result,                                                     `Cannot mount a component without a marker element in the DOM.`, results)
-
-        window.$vanilla = undefined
-        while (testingDOMNode.firstChild) {
-            testingDOMNode.removeChild(testingDOMNode.firstChild)
-        }
+        loadFile(file, (text) => {
+            assert(text === `Text`,                                         `Text read from file.`, results)
+        })
 
         return results                                                                    
     }]),
-    */
 ])
 })

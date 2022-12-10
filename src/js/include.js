@@ -412,122 +412,6 @@ class VanillaComponentLifecycle {
         if (componentObjectInfo.componentObject.afterMount) { componentObjectInfo.componentObject.afterUnmount() }
         return true
     }
-
-
-
-
-    /*
-    static unpackComponentFragment = (fragment, marker) => {
-        const parent = marker.parentNode
-        marker.after(fragment)
-        const markup = parent.getElementsByTagName("markup");
-        const style = parent.getElementsByTagName("style");
-        if (!markup || 0 === markup.length) {
-            console.error(`Failed to register component. Could not find markup tag.`)
-            return null
-        }
-
-        let nodes = []
-        const length = markup[0].children.length
-        for (let loop = length - 1; loop >= 0; loop--) {
-            const node = markup[0].children[loop]
-            nodes.push(node)
-            marker.after(node)
-        }
-        if (style && 0 < style.length) {
-            marker.after(style[0])
-        }
-        markup[0].remove()
-        return nodes.reverse()
-    }
-    static registerComponent = (id, componentObject, nodes) => {
-        if (!id) { 
-            console.error(`No id provided for component registration.`)
-            return false 
-        }
-        if (!componentObject) { 
-            console.error(`No component object provided for component registration.`)
-            return false 
-        }
-        if (!nodes) { 
-            console.error(`No nodes provided for component registration.`)
-            return false 
-        }
-        if (window?.$vanilla?.registry?.has(id)) { 
-            console.error(`Component ${id} is already registered.`)
-            return false 
-        }
-        if (!window.$vanilla) { window.$vanilla = {} }
-        if (!window.$vanilla.registry) { window.$vanilla.registry = new Map() }
-        window.$vanilla.registry.set(id, {componentObject, nodes, mounted: false})
-        return true
-    }
-    static unregisterComponent = (id) => {
-        if (!id) { 
-            console.error(`No id provided for component unregistration.`)
-            return false 
-        }
-        if (!window?.$vanilla?.registry?.has(id)) { 
-            console.error(`Component ${id} was not registered.`)
-            return false 
-        }
-        window.$vanilla.registry.delete(id)
-    }
-    static mountComponent = (componentObjectId) => {
-        const componentInfo = window.$vanilla.registry.get(componentObjectId)
-        if (!componentInfo) {
-            console.error(`Failed to mount component. Could not find ${componentObjectId}.`)
-            return false
-        }
-        if (componentInfo.mounted) {
-            console.error(`Component ${componentObjectId} is already mounted.`)
-            return false
-        }
-        const marker = document.getElementById(`-VanillaComponentMarker${componentObjectId}`)
-        if (!marker) {
-            console.error(`Failed to mount component. Could not find DOM location of ${componentObjectId}.`)
-            return false
-        }
-        componentInfo.componentObject.beforeMount()
-        const length = componentInfo.nodes.length
-        for (let loop = length - 1; loop >= 0; loop--) {
-            const node = componentInfo.nodes[loop]
-            if (marker.nextSibling){ 
-                marker.parentNode.insertBefore(node, marker.nextSibling);
-            } else {
-                marker.parentNode.appendChild(node);
-            }
-        }
-        componentInfo.mounted = true
-        window.$vanilla.registry.set(componentObjectId, componentInfo)
-        componentInfo.componentObject.afterMount()
-        return true
-    }
-    static unmountComponent = (id) => {
-        const componentInfo = window.$vanilla.registry.get(id)
-        if (!componentInfo) {
-            console.error(`Failed to unmount component. Could not find ${id}.`)
-            return false
-        }
-        if (!componentInfo.mounted) {
-            console.error(`Component ${id} is already unmounted.`)
-            return false
-        }
-        const marker = document.getElementById(`-VanillaComponentMarker${id}`)
-        if (!marker) {
-            console.error(`Failed to unmount component. Could not find DOM location of ${id}.`)
-            return false
-        }
-        componentInfo.componentObject.beforeUnmount()
-        const length = componentInfo.nodes.length
-        for (let loop = length - 1; loop >= 0; loop--) {
-            const node = componentInfo.nodes[loop]
-            marker.parentNode.removeChild( node );
-        }
-        componentInfo.componentObject.afterUnmount()
-        return true
-    }
-    */
 }
 
 class Vanilla {
@@ -559,10 +443,19 @@ class Vanilla {
     }
 }
 
-const loadFile = (filename, callback) => {
+const loadFile = (filename) => {
     fetch(filename)
         .then(response => response.text())
         .then(text => callback(text))
+}
+const loadFileAsync = async function (filename) {
+    try {
+        let response = await fetch(filename)
+        return response.text
+    } catch (e) {
+        console.error(`Error fetching file ${filename}.`)
+        return null
+    }
 }
 
 const loadIncludes = () => {
@@ -655,7 +548,7 @@ const loadIncludeComponents = () => {
             return
         }
 
-        let nodeAddedToIncludeTree = _buildIncludeTree = (includeTree, componentObjectId, src)
+        let nodeAddedToIncludeTree = _buildIncludeTree(includeTree, componentObjectId, src)
 
         if (!nodeAddedToIncludeTree) {
             console.error(`Include-component tag causes infinite recursion. Include-component processing halted. Id of the bad include-component tag: ${componentObjectId}. Include file causing recursion: ${src}.`)
