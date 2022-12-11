@@ -933,7 +933,6 @@ suite(`Test Loader`, `Ensure Loader correctly processes include files.`, [
     }]),
     await test (`Validate include attributes`, `Ensure include tag attributes are correctly validated.`, [async () => {
         let results = []
-        let testingDOM = document.getElementById(`TestingDOM`)
         let div = document.createElement('div')
 
         div.setAttribute(`src`, `src value`)
@@ -1032,6 +1031,95 @@ suite(`Test Loader`, `Ensure Loader correctly processes include files.`, [
         assert(componentClass8 === null,                                    `component-class is null when repeat is less than 1.`, results)
         assert(componentObjectId8 === null,                                 `component-id is null when repeat is less than 1.`, results)
         assert(repeat8 === null,                                            `Repeat is null when repeat is less than 1.`, results)
+
+        return results                                                                    
+    }]),    
+    await test (`Load include`, `Ensure basic include tags are loaded correctly.`, [async () => {
+        let results = []
+        let include = document.createElement('div')
+        let testingDOMNode = document.getElementById(`TestingDOM`)
+
+        include.id = `include-here`
+        include.setAttribute(`src`, `./support-files/footer.html`)
+        include.setAttribute(`include-in`, `include.test.js`)
+
+        testingDOMNode.appendChild(include)
+        await Loader.loadInclude(include)
+
+        let footer = testingDOMNode.querySelector(`footer`)
+        let includeCheck = testingDOMNode.querySelector(`div`)
+
+        assert(footer,                                                      `Footer added to document.`, results)
+        assert(!includeCheck,                                               `Include tag removed from document.`, results)
+
+        footer.remove()
+        include.setAttribute(`src`, `./support-files/footer.html`)
+        include.setAttribute(`include-in`, `looping-footer.js`)
+        include.id = `include-here`
+        testingDOMNode.appendChild(include)
+        await Loader.loadInclude(include)
+        footer = testingDOMNode.querySelector(`footer`)
+
+        assert(footer,                                                      `Loader does not load nested includes.`, results)
+
+        footer.remove()
+        include.removeAttribute(`src`)
+        include.id = `include-here`
+        testingDOMNode.appendChild(include)
+        await Loader.loadInclude(include)
+        footer = testingDOMNode.querySelector(`footer`)
+
+        assert(!footer,                                                     `Loader does not include when src attribute is missing.`, results)
+
+        include.setAttribute(`src`, `./support-files/footer.html`)
+        include.removeAttribute(`include-in`)
+        include.id = `include-here`
+        testingDOMNode.appendChild(include)
+        await Loader.loadInclude(include)
+        footer = testingDOMNode.querySelector(`footer`)
+
+        assert(!footer,                                                     `Loader does not include when include-in attribute is missing.`, results)
+
+        window.$vanilla = undefined
+        while (testingDOMNode.firstChild) {
+            testingDOMNode.removeChild(testingDOMNode.firstChild)
+        }
+
+        return results                                                                    
+    }]),    
+    await test (`Load include component`, `Ensure component include tags are loaded correctly.`, [async () => {
+        let results = []
+        let include = document.createElement('div')
+        let testingDOM = document.getElementById(`TestingDOM`)
+
+        include.id = `include-here`
+        include.setAttribute(`src`, `./support-files/test-button-component.html`)
+        include.setAttribute(`include-in`, `include.test.js`)
+        include.setAttribute(`component-class`, `Button`)
+        include.setAttribute(`component-id`, `Button1`)
+        testingDOM.appendChild(include)
+        await Loader.loadInclude(include)
+
+        assert(testingDOM.children[0],                                      `An element was inserted.`, results)
+        assert(testingDOM.children[0].tagName == 'SCRIPT',                  `The marker tag was inserted`, results)
+        assert(testingDOM.children[1],                                      `An second element was inserted.`, results)
+        assert(testingDOM.children[1].tagName == 'BUTTON',                  `The component's button tag was inserted.`, results)
+        assert(testingDOM.children[1].innerText == 'Button',                `Button's inner text replaced with the value of var x.`, results)
+        assert(testingDOM.children[2],                                      `An third element was inserted.`, results)
+        assert(testingDOM.children[2].tagName == 'DIV',                     `The component's first div tag was inserted.`, results)
+        assert(testingDOM.children[2].innerText == 'Y',                     `First div's inner text replaced with the value of var y.`, results)
+        assert(testingDOM.children[3],                                      `An fourth element was inserted.`, results)
+        assert(testingDOM.children[3].tagName == 'DIV',                     `The component's second div tag was inserted.`, results)
+        assert(testingDOM.children[3].innerText.indexOf(`value1`) === 0,    `First div's inner text replaced with the value of prop prop1.`, results)
+        assert(testingDOM.children.length == 4,                             `There are 4 'top level' elements for the component.`, results)
+        assert(testingDOM.children[3].children[0].tagName == `DIV`,         `The second div tag has a child.`, results)
+        assert(testingDOM.children[3].children[0].innerText == `value2`,    `The second div's inner text replaced with the value of prop prop2.`, results)
+        assert(testingDOM.children[3].children.length == 1,                 `The second div tag has only 1 child.`, results)
+
+        window.$vanilla = undefined
+        while (testingDOM.firstChild) {
+            testingDOM.removeChild(testingDOM.firstChild)
+        }
 
         return results                                                                    
     }]),    

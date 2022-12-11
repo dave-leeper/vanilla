@@ -273,7 +273,6 @@ class VanillaComponentLifecycle {
         if (componentObject.initialize) { componentObject.initialize() }
         VanillaComponentLifecycle.wrapVars(componentFragment, componentObject)
         VanillaComponentLifecycle.wrapProps(componentFragment, componentObject)
-
         return componentObject
     }
     static registerComponentObject = (componentClass, componentObjectID, componentObject) => {
@@ -545,7 +544,7 @@ class Loader {
 
     static loadIncludeComponent = async function (text, src, includeIn, componentClass, componentObjectId, include) {
         let fragment = VanillaComponentLifecycle.compile(text)
-            let fragmentRegistered = VanillaComponentLifecycle.registerDOMFragment(componentObjectId, fragment, false)
+        let fragmentRegistered = VanillaComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
 
         if (!fragmentRegistered) {
             console.error(`loadIncludeComponent: Failed to register component fragment. Include processing halted. Component class: ${componentClass}. File containing bad include tag is ${includeIn}. Include file is ${src}.`)
@@ -572,6 +571,7 @@ class Loader {
             console.error(`loadIncludeComponent: Failed to mount component object ${componentObjectId}. Include processing halted. File containing bad include tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
+
         return true
     }
 
