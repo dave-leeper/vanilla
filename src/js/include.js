@@ -80,6 +80,24 @@ class IncludeTree {
     }
 }
 
+/*
+    FRAGRMENT STATE             FRAGMENT STATE                      NOTES
+    (Transitions flow down)     (Transitions flow left/right)
+    -------------------------   ----------------------------------  ---------------------------------------------------------
+    Compile                                                         Creates document fragment from text.
+    Register Dom Fragment       <--> Unregister Dom Fragment        Document fragment put in registry, script tags moved to <HEAD>.
+
+    COMPONENT STATE             COMPONENT STATE                     NOTES
+    (Transitions flow down)     (Transitions flow left/right)
+    -------------------------   ----------------------------------  ---------------------------------------------------------
+    Create Component Object                                         Object instantiated from the class representing the component.
+                                                                    Object initialized. Vars and props are wrapped. Node values and
+                                                                    attribute values are replaced for the first time.
+    Register Component Object   <--> Unregister Component Object    Object placed in registery. Has a unique ID and knows the id
+                                                                    of its associated fragment.
+    mount                       <--> unmount                        Component placed in DOM, rendered to screen.
+    update                                                          Set vars to replace node and attribute values.
+*/
 class VanillaComponentLifecycle {
     static replaceNodeValue = (node, data, member) => {
         if (node.nodeValue) {
