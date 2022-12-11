@@ -1,4 +1,4 @@
-<component>
+<vanilla-component>
     <script>
         class Button{
             className() {return this.constructor.name}
@@ -27,18 +27,18 @@
             VanillaComponent.mountComponent(`Button1`)
         }
     </script>
-    <test>
+    <test-script>
 
-    </test>
+    </test-script>
     <style>
         .buttonStyle {
             color: green;
             background-color: red;
         }
     </style>
-    <markup>
+    <component-markup>
         <button name="{y}" class="buttonStyle" onclick="ddd()">{x}</button>
         <div>{y}</div>
         <div>{prop1}<div>{prop2}</div></div>
-    </markup>
-</component>
+    </component-markup>
+</vanilla-component>

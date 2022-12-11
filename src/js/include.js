@@ -164,9 +164,9 @@ class VanillaComponentLifecycle {
         }
 
         let scripts = componentFragment.querySelectorAll('script')
-        let tests = componentFragment.querySelectorAll('test')
+        let tests = componentFragment.querySelectorAll('test-script')
         let styles = componentFragment.querySelectorAll('style')
-        let markup = componentFragment.querySelectorAll('markup')
+        let markup = componentFragment.querySelectorAll('component-markup')
 
         if (1 !== scripts.length) {
             console.error(`registerDOMFragment: Fragment must contain one and only one component script tag.`)
@@ -209,8 +209,8 @@ class VanillaComponentLifecycle {
         }
         if (tests.length) {
             if (includeTest) {
-                let testTag = document.createElement('script')
-                let tests = componentFragment.querySelectorAll('test')
+                let tests = componentFragment.querySelectorAll('test-script')
+                let testTag = document.createElement('test-script')
 
                 testTag.type = 'text/javascript'
                 testTag.id = `TestTag${componentClass}`
@@ -342,7 +342,7 @@ class VanillaComponentLifecycle {
         }
 
         let clonedFragment = fragment.cloneNode(true)
-        let markup = clonedFragment.querySelector(`markup`)
+        let markup = clonedFragment.querySelector(`component-markup`)
 
         if (!markup) { 
             console.error(`Mount: Markup for ${componentObjectId} not found.`)
@@ -383,7 +383,7 @@ class VanillaComponentLifecycle {
         let fragment = window.$vanilla.fragmentRegistry.get(componentObjectInfo.componentClass)
         let markerId = `-VanillaComponentMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
-        let markup = fragment.querySelector(`markup`)
+        let markup = fragment.querySelector(`component-markup`)
 
         if (!fragment) { 
             console.error(`Unmount: Fragment ${componentObjectInfo.componentClass} is not in registery.`)
@@ -583,24 +583,24 @@ class Loader {
         await Loader.loadIncludes()
     }
     static registerCustomeTags = () => {
-        customElements.define('component', Component, { extends: `div` });
-        customElements.define('test', Test, { extends: `script` });
-        customElements.define('markup', Markup, { extends: `div` });
+        customElements.define('vanilla-component', VanillaComponent, { extends: `div` });
+        customElements.define('test-srcipt', Test, { extends: `script` });
+        customElements.define('component-markup', ComponentMarkup, { extends: `div` });
     }
 }
 
-class Component extends HTMLDivElement {
+class VanillaComponent extends HTMLDivElement {
     constructor() {
         super()
         this.style.display = `none`
     }
 }
 
-class Test extends HTMLScriptElement {
+class TestScript extends HTMLScriptElement {
     constructor() {super()}
 }
 
-class Markup extends HTMLDivElement {
+class ComponentMarkup extends HTMLDivElement {
     constructor() {
         super()
         this.style.display = `none`

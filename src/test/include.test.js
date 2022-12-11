@@ -236,7 +236,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         return results                                                                    
     }]),
     await test (`Register DOM fragment`, `Ensure component DOM fragment is properly registered.`, [async () => {
-        let html = `<component><script>
+        let html = `<vanilla-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -247,18 +247,18 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 vars = { var1: 'value1', var2: 'value2' } 
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
-            <test>const myTest = function() { return 42; }</test>
+            <test-script>const myTest = function() { return 42; }</test-script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
+            </component-markup></vanilla-component>`
         let frag = VanillaComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`
         let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
         let fragmentScripts = frag.querySelectorAll(`script`)
-        let fragmentTests = frag.querySelectorAll(`test`)
+        let fragmentTests = frag.querySelectorAll(`test-script`)
         let fragmentStyles = frag.querySelectorAll(`style`)
         let componentScript = document.getElementById(`ScriptTag${fragmentId}`)
         let componentTest = document.getElementById(`TestTag${fragmentId}`)
@@ -279,7 +279,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(componentInRegistry,                                         `DOM fragment in registry.`, results)
         assert(fragmentScripts.length === 0,                                `Component script moved out of fragment.`, results)
         assert(fragmentTests.length === 0,                                  `Component test moved out of fragment.`, results)
-        assert(fragmentStyles.length === 0,                                 `Component test moved out of fragment.`, results)
+        assert(fragmentStyles.length === 0,                                 `Component style moved out of fragment.`, results)
         assert(componentScript,                                             `Component script still in document.`, results)
         assert(document.head.querySelector(`#ScriptTag${fragmentId}`),      `Component script moved to head.`, results)
         assert(componentTest === null,                                      `Component test not in document.`, results)
@@ -297,7 +297,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(componentInRegistry,                                         `DOM fragment in registry (include test tag).`, results)
         assert(fragmentScripts.length === 0,                                `Component script moved out of fragment (include test tag).`, results)
         assert(fragmentTests.length === 0,                                  `Component test moved out of fragment (include test tag).`, results)
-        assert(fragmentStyles.length === 0,                                 `Component test moved out of fragment (include test tag).`, results)
+        assert(fragmentStyles.length === 0,                                 `Component style moved out of fragment (include test tag).`, results)
         assert(componentScript,                                             `Component script still in document (include test tag).`, results)
         assert(document.head.querySelector(`#ScriptTag${fragmentId}`),      `Component script moved to head (include test tag).`, results)
         assert(componentTest,                                               `Component test still in document (include test tag).`, results)
@@ -326,13 +326,13 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         assert(!registerResult,                                             `Register DOM fragment fails when no fragment is provided.`, results)
 
-        html = `<component><test>const myTest = function() { return 42; }</test>
+        html = `<vanilla-component><test-script>const myTest = function() { return 42; }</test-script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
+            </component-markup></vanilla-component>`
 
         cleanup()
         frag = VanillaComponentLifecycle.compile(html)
@@ -340,7 +340,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's no script tag.`, results)
 
-        html = `<component><script>
+        html = `<vanilla-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -352,13 +352,13 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
             <script>const f = () => {}</script>
-            <test>const myTest = function() { return 42; }</test>
+            <test-script>const myTest = function() { return 42; }</test-script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
+            </component-markup></vanilla-component>`
         
         cleanup()
         frag = VanillaComponentLifecycle.compile(html)
@@ -366,7 +366,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two script tags.`, results)
     
-        html = `<component><script>
+        html = `<vanilla-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -377,9 +377,9 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 vars = { var1: 'value1', var2: 'value2' } 
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
-            <test>const myTest = function() { return 42; }</test>
+            <test-script>const myTest = function() { return 42; }</test-script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            </component>`
+            </vanilla-component>`
 
         cleanup()
         frag = VanillaComponentLifecycle.compile(html)
@@ -387,7 +387,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's no markup tag.`, results)
 
-        html = `<component><script>
+        html = `<vanilla-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -398,15 +398,15 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 vars = { var1: 'value1', var2: 'value2' } 
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
-            <test>const myTest = function() { return 42; }</test>
+            <test-script>const myTest = function() { return 42; }</test-script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup>
-            <markup><div></div></markup>
-            </component>`
+            </component-markup>
+            <component-markup><div></div></component-markup>
+            </vanilla-component>`
 
         cleanup()
         frag = VanillaComponentLifecycle.compile(html)
@@ -414,7 +414,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two markup tags.`, results)
 
-        html = `<component><script>
+        html = `<vanilla-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -426,12 +426,12 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup>
-            </component>`
+            </component-markup>
+            </vanilla-component>`
 
         cleanup()
         frag = VanillaComponentLifecycle.compile(html)
@@ -439,7 +439,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
     
         assert(registerResult,                                              `Register DOM fragment succeeds when including test tag, but there's no test tag.`, results)
 
-        html = `<component><script>
+        html = `<vanilla-component><script>
         class TestComponent{
             className() { return this.constructor.name }
             initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -450,14 +450,14 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             vars = { var1: 'value1', var2: 'value2' } 
             props = { prop1: 'value3', prop2: 'value4' }
         }</script>
-        <test>const myTest = function() { return 42; }</test>
-        <test>const myOtherTest = function() { return 42; }</test>
+        <test-script>const myTest = function() { return 42; }</test-script>
+        <test-script>const myOtherTest = function() { return 42; }</test-script>
         <style>.buttonStyle { color: green; background-color: red; }</style>
-        <markup>
+        <component-markup>
             <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
             <div id='test-div-1'>{var2}</div>
             <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-        </markup></component>`
+        </component-markup></vanilla-component>`
 
         cleanup()
         frag = VanillaComponentLifecycle.compile(html)
@@ -465,7 +465,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two test tags.`, results)
 
-        html = `<component><script>
+        html = `<vanilla-component><script>
         class TestComponent{
             className() { return this.constructor.name }
             initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -476,14 +476,14 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             vars = { var1: 'value1', var2: 'value2' } 
             props = { prop1: 'value3', prop2: 'value4' }
         }</script>
-        <test>const myTest = function() { return 42; }</test>
+        <test-script>const myTest = function() { return 42; }</test-script>
         <style>.buttonStyle { color: green; background-color: red; }</style>
         <style>.checkboxStyle { color: green; background-color: red; }</style>
-        <markup>
+        <component-markup>
             <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
             <div id='test-div-1'>{var2}</div>
             <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-        </markup></component>`
+        </component-markup></vanilla-component>`
 
         cleanup()
         frag = VanillaComponentLifecycle.compile(html)
@@ -495,7 +495,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         return results                                                                    
     }]),
     await test (`Unregister DOM fragment`, `Ensure component DOM fragment is properly unregistered.`, [async () => {
-        let html = `<component><script>
+        let html = `<vanilla-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -506,13 +506,13 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 vars = { var1: 'value1', var2: 'value2' } 
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
-            <test>const myTest = function() { return 42; }</test>
+            <test-script>const myTest = function() { return 42; }</test-script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
+            </component-markup></vanilla-component>`
         let frag = VanillaComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`
         let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
@@ -547,7 +547,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         return results                                                                    
     }]),
     await test (`Create component object`, `Ensure a component's object can be successfully created.`, [async () => {
-        let html = `<component><script>
+        let html = `<vanilla-component><script>
             class TestComponent {
                 className() { return this.constructor.name }
                 initialize() { window.initialized = true }
@@ -559,11 +559,11 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
+            </component-markup></vanilla-component>`
         let includeTagHTML = `<include-component id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
         let frag = VanillaComponentLifecycle.compile(html)
         let componentClass = `TestComponent`
@@ -644,7 +644,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         return results                                                                    
     }]),
     await test (`Mount component`, `Ensure a component can be successfully mounted.`, [async () => {
-        let html = `<component><script>
+        let html = `<vanilla-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -656,11 +656,11 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
+            </component-markup></vanilla-component>`
         let includeTagHTML = `<include-component id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
         let frag = VanillaComponentLifecycle.compile(html)
         let componentClass = `TestComponent`
@@ -719,7 +719,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         return results                                                                    
     }]),
     await test (`Unmount component`, `Ensure a component can be successfully unmounted.`, [async () => {
-        let html = `<component><script>
+        let html = `<vanilla-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -731,11 +731,11 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 props = { prop1: 'value3', prop2: 'value4' }
             }</script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            <markup>
+            <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </markup></component>`
+            </component-markup></vanilla-component>`
         let includeTagHTML = `<include-component id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
         let frag = VanillaComponentLifecycle.compile(html)
         let componentClass = `TestComponent`
