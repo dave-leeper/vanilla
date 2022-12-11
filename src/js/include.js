@@ -456,7 +456,6 @@ class Loader {
 
         return text
     }
-    
     static updateIncludeTree = (parentName, childName) => {
         let node = null
         
@@ -473,8 +472,9 @@ class Loader {
         let childNode = node.addChild(childName)
         return childNode
     }
-
     static validateIncludeAttributes = (attributes) => {
+        // <include include-in="index.html" src="./header.html"></include>
+        // <include include-in="index.html" src="./button.html" component-class="Button" component-id="Button1"></include>
         const badReturn = [null, null, null, null, null]
 
         if (!attributes) {
@@ -515,9 +515,6 @@ class Loader {
         }
         return [src, includeIn, componentClass, componentObjectId, repeat]
     }
-
-    // <include include-in="index.html" src="./header.html"></include>
-    // <include include-in="index.html" src="./button.html" component-class="Button" component-id="Button1"></include>
     static loadInclude = async function (include) {
         let [src, includeIn, componentClass, componentObjectId, repeat] = Loader.validateIncludeAttributes(include.attributes)
 
@@ -574,7 +571,6 @@ class Loader {
 
         return true
     }
-
     static loadIncludes = async function () {
         let includes = document.getElementsByTagName('include')
 
@@ -586,6 +582,29 @@ class Loader {
         // Includes can contain includes.
         await Loader.loadIncludes()
     }
+    static registerCustomeTags = () => {
+        customElements.define('component', Component, { extends: `div` });
+        customElements.define('test', Test, { extends: `script` });
+        customElements.define('markup', Markup, { extends: `div` });
+    }
 }
 
-document.addEventListener(`DOMContentLoaded`, Loader.loadIncludes)
+class Component extends HTMLDivElement {
+    constructor() {
+        super()
+        this.style.display = `none`
+    }
+}
+
+class Test extends HTMLScriptElement {
+    constructor() {super()}
+}
+
+class Markup extends HTMLDivElement {
+    constructor() {
+        super()
+        this.style.display = `none`
+    }
+}
+
+document.addEventListener(`DOMContentLoaded`, () => { registerCustomeTags(); Loader.loadIncludes() })
