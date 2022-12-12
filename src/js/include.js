@@ -556,7 +556,6 @@ class Loader {
 
         return true
     }
-
     static loadIncludeComponent = async function (text, src, includeIn, componentClass, componentObjectId, include) {
         let fragment = VanillaComponentLifecycle.compile(text)
         let fragmentRegistered = VanillaComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
@@ -600,14 +599,14 @@ class Loader {
         // Includes can contain includes.
         await Loader.loadIncludes()
     }
-    static registerCustomeTags = () => {
+    static registerCustomTags = function () {
         customElements.define('vanilla-component', VanillaComponent, { extends: `div` });
-        customElements.define('test-srcipt', Test, { extends: `script` });
+        customElements.define('test-srcipt', TestScript, { extends: `script` });
         customElements.define('component-markup', ComponentMarkup, { extends: `div` });
     }
 }
 
-class VanillaComponent extends HTMLDivElement {
+class VanillaComponent extends HTMLElement {
     constructor() {
         super()
         this.style.display = `none`
@@ -618,11 +617,11 @@ class TestScript extends HTMLScriptElement {
     constructor() {super()}
 }
 
-class ComponentMarkup extends HTMLDivElement {
+class ComponentMarkup extends HTMLElement {
     constructor() {
         super()
         this.style.display = `none`
     }
 }
 
-document.addEventListener(`DOMContentLoaded`, () => { registerCustomeTags(); Loader.loadIncludes() })
+document.addEventListener(`DOMContentLoaded`, () => { Loader.registerCustomTags(); Loader.loadIncludes() })
