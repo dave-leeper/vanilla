@@ -199,7 +199,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             props = { prop1: `value1`, prop2: `value2` }
         }
         let testComponent = new TestComponent()
-        let html = `<footer class="center-text caption-1 red-f pad-tb-5 margin-tb-5 bg-grey-e border-2 border-solid border-black">My Footer</footer>`
+        let html = `<footer class="center-text caption-1 red-f pad-tb-5 margin-tb-5 bg-gray-e border-2 border-solid border-black">My Footer</footer>`
         let componentFragment = VanillaComponentLifecycle.compile(html)
         let results = []
 
@@ -223,7 +223,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             props = { prop1: `value1`, prop2: `value2` }
         }
         let testComponent = new TestComponent()
-        let html = `<footer class="center-text caption-1 red-f pad-tb-5 margin-tb-5 bg-grey-e border-2 border-solid border-black">My Footer</footer>`
+        let html = `<footer class="center-text caption-1 red-f pad-tb-5 margin-tb-5 bg-gray-e border-2 border-solid border-black">My Footer</footer>`
         let componentFragment = VanillaComponentLifecycle.compile(html)
         let results = []
 
