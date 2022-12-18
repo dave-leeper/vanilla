@@ -568,15 +568,15 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let frag = VanillaComponentLifecycle.compile(html)
         let componentClass = `TestComponent`
         let registerResult = VanillaComponentLifecycle.registerDOMFragment(componentClass, frag, false)
-        let testingDOMElement = document.getElementById(`TestingDOM`)
+        let testingDOMNode = document.getElementById(`TestingDOM`)
         let results = []
 
         window.initialized = false
-        testingDOMElement.append(...new DOMParser().parseFromString(includeTagHTML, `text/html`).body.childNodes)
+        testingDOMNode.append(...new DOMParser().parseFromString(includeTagHTML, `text/html`).body.childNodes)
 
         let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, `TestComponent1`, document.getElementById(`TestIncludeTag`))
 
-        VanillaComponentLifecycle.unregisterDOMFragment(componentClass)
+        // VanillaComponentLifecycle.unregisterDOMFragment(componentClass)
 
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(componentClass)
         let hasIncludeTag = document.getElementById(`TestIncludeTag`)
@@ -593,6 +593,38 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(componentObject.props.$propsStore,                           `Props are wrapped.`, results)
         assert(componentObject.props.prop1 === `value3`,                    `Props cannot be changed.`, results)
         
+        window.$vanilla.objectRegistry = new Map()
+
+        includeTagHTML = `<include-component props='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        testingDOMNode.append(...new DOMParser().parseFromString(includeTagHTML, `text/html`).body.childNodes)
+        componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, `TestComponent2`, document.getElementById(`TestIncludeTag`))
+        objectInRegistry = window.$vanilla?.objectRegistry?.has(componentClass)
+        hasIncludeTag = document.getElementById(`TestIncludeTag`)
+
+        console.log(componentObject.props)
+        assert(componentObject,                                             `Component object successfully created.`, results)
+        assert(componentObject.props.$propsStore,                           `Props are wrapped.`, results)
+        assert(componentObject.props.prop1 === `value3`,                    `Props cannot be changed.`, results)
+        console.log(componentObject.props)
+        assert(componentObject.props.q === `Q`,                             `Props can be set via the include-component tag.`, results)
+
+        window.$vanilla.objectRegistry = new Map()
+
+        includeTagHTML = `<include-component vars='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        testingDOMNode.append(...new DOMParser().parseFromString(includeTagHTML, `text/html`).body.childNodes)
+        console.log(`TEST BEGIN`)
+        componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, `TestComponent2`, document.getElementById(`TestIncludeTag`))
+        objectInRegistry = window.$vanilla?.objectRegistry?.has(componentClass)
+
+        console.log(componentObject.props)
+        assert(componentObject,                                             `Component object successfully created.`, results)
+        assert(!objectInRegistry,                                           `Creating a component does not register it.`, results)
+        assert(componentObject.vars.$varsStore,                             `Vars are wrapped.`, results)
+        assert(componentObject.vars.q === `Q`,                              `Vars can be set via the include-component tag.`, results)
+        console.log(`TEST END`)
+
+        window.$vanilla = undefined
+
         return results                                                                    
     }]),
     await test (`Register component object`, `Ensure a component's object can be successfully registered.`, [async () => {

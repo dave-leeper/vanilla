@@ -288,6 +288,16 @@ class VanillaComponentLifecycle {
             marker.type = 'text/javascript'
             includeElement.parentNode.replaceChild(marker, includeElement);
         }
+        if (includeElement.attributes && includeElement.attributes[`props`] && includeElement.attributes[`props`].value) {
+            let props = JSON.parse(includeElement.attributes[`props`].value)
+
+            componentObject.props = {...componentObject.props, ...props}
+        }
+        if (includeElement.attributes && includeElement.attributes[`vars`] && includeElement.attributes[`vars`].value) {
+            let vars = JSON.parse(includeElement.attributes[`vars`].value)
+
+            componentObject.vars = {...componentObject.vars, ...vars}
+        }
         if (componentObject.initialize) { componentObject.initialize() }
         VanillaComponentLifecycle.wrapVars(componentFragment, componentObject)
         VanillaComponentLifecycle.wrapProps(componentFragment, componentObject)
