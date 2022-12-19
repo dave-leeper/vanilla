@@ -466,30 +466,10 @@ class Vanilla {
     }
 }
 
-class VanillaComponentElement extends HTMLElement {
-    constructor() {
-        super()
-        this.style.display = `none`
-    }
-}
-
-class TestScriptElement extends HTMLElement {
-    constructor() {super()}
-}
-
-class ComponentMarkupElement extends HTMLElement {
-    constructor() {
-        super()
-        this.style.display = `none`
-    }
-}
-
-class IncludeHTMLElement extends HTMLElement {
-    constructor() {
-        super()
-        this.style.display = `none`
-    }
-}
+class VanillaComponentElement extends HTMLElement {}
+class TestScriptElement extends HTMLElement {}
+class ComponentMarkupElement extends HTMLElement {}
+class IncludeHTMLElement extends HTMLElement {}
 
 class Loader {
     static includeTree = new IncludeTree()
