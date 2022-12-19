@@ -519,7 +519,7 @@ class Loader {
             Loader.tree.addNode(node)
         }
         if (node.hasAncestor(childName)) {
-            console.error(`updateIncludeTree: Include tag causes infinite recursion. Include processing halted. Parent name is ${parentName}. Child name is ${childName}`)
+            console.error(`updateIncludeTree: Include-html tag causes infinite recursion. Include processing halted. Parent name is ${parentName}. Child name is ${childName}`)
             return null
         }
         let childNode = node.addChild(childName)
@@ -543,27 +543,27 @@ class Loader {
         let repeat = (repeatAttributValue)? parseInt(repeatAttributValue) : 1
 
         if (!src) {
-            console.error(`validateIncludeAttributes: Include tag missing required attribute 'src'. Include processing halted. File containing bad include tag is ${includeIn}.`)
+            console.error(`validateIncludeAttributes: Include-html tag missing required attribute 'src'. Include processing halted. File containing bad Include-html tag is ${includeIn}.`)
             return badReturn
         }
         if (!includeIn) {
-            console.error(`validateIncludeAttributes: Include tag missing required attribute 'include-in'. Include processing halted. Included file is ${src}.`)
+            console.error(`validateIncludeAttributes: Include-html tag missing required attribute 'include-in'. Include processing halted. Included file is ${src}.`)
             return badReturn
         }
         if (componentClass && !componentObjectId) {
-            console.error(`validateIncludeAttributes: Include tag missing required attribute 'component-id'. Include processing halted. File containing bad include tag is ${includeIn}. Included file is ${src}.`)
+            console.error(`validateIncludeAttributes: Include-html tag missing required attribute 'component-id'. Include processing halted. File containing bad Include-html tag is ${includeIn}. Included file is ${src}.`)
             return badReturn
         }
         if (!componentClass && componentObjectId) {
-            console.error(`validateIncludeAttributes: Include tag missing required attribute 'component-class'. Include processing halted. File containing bad include tag is ${includeIn}. Included file is ${src}.`)
+            console.error(`validateIncludeAttributes: Include-html tag missing required attribute 'component-class'. Include processing halted. File containing bad Include-html tag is ${includeIn}. Included file is ${src}.`)
             return badReturn
         }
         if (0 !== repeat && !repeat) {
-            console.error(`validateIncludeAttributes: Include tag 'repeat' attribute is not a number. Include processing halted. File containing bad include tag is ${includeIn}. Included file is ${src}.`)
+            console.error(`validateIncludeAttributes: Include-html tag 'repeat' attribute is not a number. Include processing halted. File containing bad Include-html tag is ${includeIn}. Included file is ${src}.`)
             return badReturn
         }
         if (1 > repeat) {
-            console.error(`validateIncludeAttributes: Include tag 'repeat' attribute must be greater than zero. Include processing halted. File containing bad include tag is ${includeIn}. Included file is ${src}.`)
+            console.error(`validateIncludeAttributes: Include-html tag 'repeat' attribute must be greater than zero. Include processing halted. File containing bad Include-html tag is ${includeIn}. Included file is ${src}.`)
             return badReturn
         }
         return [src, includeIn, componentClass, componentObjectId, repeat]
@@ -596,28 +596,28 @@ class Loader {
         let fragmentRegistered = VanillaComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
 
         if (!fragmentRegistered) {
-            console.error(`loadIncludeComponent: Failed to register component fragment. Include processing halted. Component class: ${componentClass}. File containing bad include tag is ${includeIn}. Include file is ${src}.`)
+            console.error(`loadIncludeComponent: Failed to register component fragment. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
 
         let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, componentObjectId, include)
 
         if (!componentObject) {
-            console.error(`loadIncludeComponent: Failed to create component. Include processing halted. Component class: ${componentClass}. File containing bad include tag is ${includeIn}. Include file is ${src}.`)
+            console.error(`loadIncludeComponent: Failed to create component. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
 
         let componentObjectRegistered = VanillaComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject)
 
         if (!componentObjectRegistered) {
-            console.error(`loadIncludeComponent: Failed to register component object. Include processing halted. Component class: ${componentClass}. File containing bad include tag is ${includeIn}. Include file is ${src}.`)
+            console.error(`loadIncludeComponent: Failed to register component object. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
         
         let componentMounted = VanillaComponentLifecycle.mount(componentObjectId)
 
         if (!componentMounted) {
-            console.error(`loadIncludeComponent: Failed to mount component object ${componentObjectId}. Include processing halted. File containing bad include tag is ${includeIn}. Include file is ${src}.`)
+            console.error(`loadIncludeComponent: Failed to mount component object ${componentObjectId}. Include processing halted. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
 
