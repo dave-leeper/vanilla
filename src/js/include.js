@@ -340,12 +340,10 @@ class VanillaComponentLifecycle {
     static mount = (componentObjectId) => {
         if (!componentObjectId) { 
             console.error(`Mount: No component object id provided for mount.`)
-            console.log(`1`)
             return false 
         }
         if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
             console.error(`Mount: Component object ${componentObjectId} was not in registery.`)
-            console.log(`2`)
             return false 
         }
 
@@ -356,22 +354,18 @@ class VanillaComponentLifecycle {
 
         if (!fragment) { 
             console.error(`Mount: DOM fragment ${componentObjectInfo.componentClass} is not in registery.`)
-            console.log(`3`)
             return false 
         }
         if (!componentObjectInfo.componentObject) { 
             console.error(`Mount: Component object ${componentObjectId} is not in registery.`)
-            console.log(`4`)
             return false 
         }
         if (componentObjectInfo.mounted) { 
             console.error(`Mount: Component object ${componentObjectId} is already mounted.`)
-            console.log(`5`)
             return false 
         }
         if (!marker) { 
             console.error(`Mount: Marker for ${componentObjectId} is not in DOM.`)
-            console.log(`6`)
             return false 
         }
 
@@ -380,7 +374,6 @@ class VanillaComponentLifecycle {
 
         if (!markup) { 
             console.error(`Mount: Markup for ${componentObjectId} not found.`)
-            console.log(`7`)
             return false 
         }
         if (componentObjectInfo.componentObject.beforeMount) { componentObjectInfo.componentObject.beforeMount() }
