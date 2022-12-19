@@ -636,7 +636,7 @@ class Loader {
     }
     static registerCustomTags = function () {
         customElements.define('vanilla-component', VanillaComponentElement, {  });
-        customElements.define('test-srcipt', TestScriptElement, {  });
+        customElements.define('test-script', TestScriptElement, {  });
         customElements.define('component-markup', ComponentMarkupElement, {  });
         customElements.define('include-html', ComponentMarkupElement, {  });
     }
