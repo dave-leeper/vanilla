@@ -589,7 +589,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let results = []
         let fragmentId = `TestComponent`
         let testIncludeTagId = `TestIncludeTag`
-        let includeTagHTML = `<include id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
         
         setup(fragmentId, html, includeTagHTML)
 
@@ -610,7 +610,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(componentObject.props.prop1 === `value3`,                    `Props cannot be changed.`, results)
         
         cleanup(fragmentId)
-        includeTagHTML = `<include props='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        includeTagHTML = `<include-html props='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
         setup(fragmentId, html, includeTagHTML)
         componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
         objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
@@ -622,7 +622,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(componentObject.props.q === `Q`,                             `Props can be set via the include tag.`, results)
 
         cleanup(fragmentId)
-        includeTagHTML = `<include vars='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        includeTagHTML = `<include-html vars='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
         setup(fragmentId, html, includeTagHTML)
         componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
         objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
@@ -665,7 +665,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         }
         let fragmentId = `TestComponent`
         let componentObjectID = `TestComponent1`
-        let includeTagHTML = `<include id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
 
         setup(fragmentId, html, includeTagHTML)
 
@@ -731,7 +731,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         }
         let fragmentId = `TestComponent`
         let componentObjectID = `TestComponent1`
-        let includeTagHTML = `<include id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
 
         setup(fragmentId, html, includeTagHTML)
 
@@ -796,7 +796,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let testIncludeTagId = `TestIncludeTag`
         let componentClass = `TestComponent`
         let componentObjectId = `TestComponent1`
-        let includeTagHTML = `<include id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
         setup(fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, componentObjectId)
         let mountResult = VanillaComponentLifecycle.mount(componentObjectId)
         let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
@@ -863,7 +863,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
             </component-markup></vanilla-component>`
-        let includeTagHTML = `<include id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
+        let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-component>`
         let frag = VanillaComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`
         let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)

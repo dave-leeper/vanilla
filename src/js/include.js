@@ -466,6 +466,31 @@ class Vanilla {
     }
 }
 
+class VanillaComponentElement extends HTMLElement {
+    constructor() {
+        super()
+        this.style.display = `none`
+    }
+}
+
+class TestScriptElement extends HTMLElement {
+    constructor() {super()}
+}
+
+class ComponentMarkupElement extends HTMLElement {
+    constructor() {
+        super()
+        this.style.display = `none`
+    }
+}
+
+class IncludeHTMLElement extends HTMLElement {
+    constructor() {
+        super()
+        this.style.display = `none`
+    }
+}
+
 class Loader {
     static includeTree = new IncludeTree()
     static get tree() { return Loader.includeTree }
@@ -501,8 +526,8 @@ class Loader {
         return childNode
     }
     static validateIncludeAttributes = (attributes) => {
-        // <include include-in="index.html" src="./header.html"></include>
-        // <include include-in="index.html" src="./button.html" component-class="Button" component-id="Button1"></include>
+        // <include-html include-in="index.html" src="./header.html"></include>
+        // <include-html include-in="index.html" src="./button.html" component-class="Button" component-id="Button1"></include>
         const badReturn = [null, null, null, null, null]
 
         if (!attributes) {
@@ -599,7 +624,7 @@ class Loader {
         return true
     }
     static loadIncludes = async function () {
-        let includes = document.getElementsByTagName('include')
+        let includes = document.getElementsByTagName('include-html')
 
         if (0 === includes.length) { return }
         for (let include of includes) {
@@ -610,27 +635,10 @@ class Loader {
         await Loader.loadIncludes()
     }
     static registerCustomTags = function () {
-        customElements.define('vanilla-component', VanillaComponent, { extends: `div` });
-        customElements.define('test-srcipt', TestScript, { extends: `script` });
-        customElements.define('component-markup', ComponentMarkup, { extends: `div` });
-    }
-}
-
-class VanillaComponent extends HTMLElement {
-    constructor() {
-        super()
-        this.style.display = `none`
-    }
-}
-
-class TestScript extends HTMLScriptElement {
-    constructor() {super()}
-}
-
-class ComponentMarkup extends HTMLElement {
-    constructor() {
-        super()
-        this.style.display = `none`
+        customElements.define('vanilla-component', VanillaComponentElement, {  });
+        customElements.define('test-srcipt', TestScriptElement, {  });
+        customElements.define('component-markup', ComponentMarkupElement, {  });
+        customElements.define('include-html', ComponentMarkupElement, {  });
     }
 }
 
