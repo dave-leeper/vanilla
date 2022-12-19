@@ -526,8 +526,8 @@ class Loader {
         return childNode
     }
     static validateIncludeAttributes = (attributes) => {
-        // <include-html include-in="index.html" src="./header.html"></include>
-        // <include-html include-in="index.html" src="./button.html" component-class="Button" component-id="Button1"></include>
+        // <include-html include-in="index.html" src="./header.html"></include-html>
+        // <include-html include-in="index.html" src="./button.html" component-class="Button" component-id="Button1"></include-html>
         const badReturn = [null, null, null, null, null]
 
         if (!attributes) {
