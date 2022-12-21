@@ -127,6 +127,7 @@ class VanillaComponentLifecycle {
         }
     }
     static wrapProps = (componentFragment, componentObject) => {
+        if (!componentObject.props) {return}
         let members = Object.getOwnPropertyNames(componentObject.props)
 
         componentObject.props.$propsStore = {...componentObject.props}
@@ -143,6 +144,7 @@ class VanillaComponentLifecycle {
         }
     }
     static wrapVars = (componentFragment, componentObject) => {
+        if (!componentObject.vars) {return}
         let members = Object.getOwnPropertyNames(componentObject.vars)
 
         componentObject.vars.$varsStore = {...componentObject.vars}
@@ -379,7 +381,19 @@ class VanillaComponentLifecycle {
         if (componentObjectInfo.componentObject.beforeMount) { componentObjectInfo.componentObject.beforeMount() }
         for (let loop = markup.children.length - 1; loop >= 0; loop--) {
             let child = markup.children[loop]
+            const setOnClick = (node) => {
+                let onClick = node.getAttribute(`onclick`)
 
+                if (onClick && -1 !== onClick.indexOf(`$obj.`)) {
+                    onClick = onClick.replaceAll(`$obj.`, `window.$vanilla.objectRegistry.get('${componentObjectId}').componentObject.`)
+                    node.setAttribute(`onclick`, onClick)
+                }
+                for (const grandChild of node.children) {
+                    setOnClick(grandChild)
+                }
+            }
+
+            setOnClick(child)
             marker.after(child)
         }
         componentObjectInfo.mounted = true
@@ -618,7 +632,7 @@ class Loader {
         customElements.define('vanilla-component', VanillaComponentElement, {  });
         customElements.define('test-script', TestScriptElement, {  });
         customElements.define('component-markup', ComponentMarkupElement, {  });
-        customElements.define('include-html', ComponentMarkupElement, {  });
+        customElements.define('include-html', IncludeHTMLElement, {  });
     }
 }
 

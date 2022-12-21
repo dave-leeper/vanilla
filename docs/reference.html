@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Demonstrate the Vanilla HTML framework">
+    <meta name="description" content="Vanilla HTML framework reference">
     <meta name="keywords" content="HTML, CSS, JavaScript, Vanilla">
     <meta name="author" content="Dave Leeper">
     <!-- https://ogp.me -->
-    <meta property="og:title" content="Vanilla Demonstartion" />
+    <meta property="og:title" content="Vanilla Reference" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
     <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
-   <title>Vanilla</title>
-    <script src="../js/include.js"></script>
-    <link rel="stylesheet" href="../css/styles.css">
+   <title>Vanilla Reference</title>
+    <script src="../src/js/include.js"></script>
+    <link rel="stylesheet" href="../src/css/styles.css">
     <script>
       function setCSSDefaults() {
         const r = document.querySelector(':root')
@@ -25,12 +25,12 @@
     </script>
   </head>
   <body>
-    <include-html include-in="index.html" src="./header.html"></include-html>
+    <include-html include-in="index.html" src="../src/html/header.html"></include-html>
     <!-- Content -->
     <div class="flex-row flex-space-around w100 center-text">
       <div class="header-2 w70 pad-t-10">Build and test beautiful web sites without npm, webpack, gulp, react, mocha or other tooling.</div>
     </div>
-    <include-html include-in="index.html" src="./components/button.html" component-class="Button" component-id="Button1"></include-html>
+    <include-html include-in="index.html" src="../src/html/components/button.html" component-class="Button" component-id="Button1"></include-html>
     <span class="flex-col w95 margin-5">
       <div class="w100 header-6">Basic Colors</div>
       <div class="flex-row flex-space-between w100 caption-2">
@@ -1239,6 +1239,6 @@
         </div>
       </div>
     </section>
-    <include-html include-in="index.html" src="./footer.html"></include-html>
+    <include-html include-in="index.html" src="../src/html/footer.html"></include-html>
   </body>
 </html>
