@@ -381,19 +381,75 @@ class VanillaComponentLifecycle {
         if (componentObjectInfo.componentObject.beforeMount) { componentObjectInfo.componentObject.beforeMount() }
         for (let loop = markup.children.length - 1; loop >= 0; loop--) {
             let child = markup.children[loop]
-            const setOnClick = (node) => {
-                let onClick = node.getAttribute(`onclick`)
+            const setEventHamdler = (node, event) => {
+                let eventHandlerText = node.getAttribute(event)
 
-                if (onClick && -1 !== onClick.indexOf(`$obj.`)) {
-                    onClick = onClick.replaceAll(`$obj.`, `window.$vanilla.objectRegistry.get('${componentObjectId}').componentObject.`)
-                    node.setAttribute(`onclick`, onClick)
+                if (eventHandlerText && -1 !== eventHandlerText.indexOf(`$obj.`)) {
+                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `window.$vanilla.objectRegistry.get('${componentObjectId}').componentObject.`)
+                    node.setAttribute(event, eventHandlerText)
                 }
                 for (const grandChild of node.children) {
-                    setOnClick(grandChild)
+                    setEventHamdler(grandChild, event)
                 }
             }
 
-            setOnClick(child)
+            setEventHamdler(child, `onblur`)
+            setEventHamdler(child, `onchange`)
+            setEventHamdler(child, `oncontextmenu`)
+            setEventHamdler(child, `onfocus`)
+            setEventHamdler(child, `oninput`)
+            setEventHamdler(child, `oninvalid`)
+            setEventHamdler(child, `onreset`)
+            setEventHamdler(child, `onsearch`)
+            setEventHamdler(child, `onselect`)
+            setEventHamdler(child, `onsubmit`)
+            setEventHamdler(child, `onkeydown`)
+            setEventHamdler(child, `onkeyup`)
+            setEventHamdler(child, `onclick`)
+            setEventHamdler(child, `ondblclick`)
+            setEventHamdler(child, `onmousedown`)
+            setEventHamdler(child, `onmousemove`)
+            setEventHamdler(child, `onmouseout`)
+            setEventHamdler(child, `onmouseover`)
+            setEventHamdler(child, `onmouseup`)
+            setEventHamdler(child, `onwheel`)
+            setEventHamdler(child, `ondrag`)
+            setEventHamdler(child, `ondragend`)
+            setEventHamdler(child, `ondragenter`)
+            setEventHamdler(child, `ondragleave`)
+            setEventHamdler(child, `ondragover`)
+            setEventHamdler(child, `ondragstart`)
+            setEventHamdler(child, `ondrop`)
+            setEventHamdler(child, `onscroll`)
+            setEventHamdler(child, `oncopy`)
+            setEventHamdler(child, `oncut`)
+            setEventHamdler(child, `onpaste`)
+            setEventHamdler(child, `onabort`)
+            setEventHamdler(child, `oncanplay`)
+            setEventHamdler(child, `oncanplaythrough`)
+            setEventHamdler(child, `oncuechange`)
+            setEventHamdler(child, `ondurationchange`)
+            setEventHamdler(child, `onemptied`)
+            setEventHamdler(child, `onended`)
+            setEventHamdler(child, `onerror`)
+            setEventHamdler(child, `onloadeddata`)
+            setEventHamdler(child, `onloadedmetadata`)
+            setEventHamdler(child, `onloadstart`)
+            setEventHamdler(child, `onpause`)
+            setEventHamdler(child, `onplay`)
+            setEventHamdler(child, `onplaying`)
+            setEventHamdler(child, `onprogress`)
+            setEventHamdler(child, `onratechange`)
+            setEventHamdler(child, `onseeked`)
+            setEventHamdler(child, `onseeking`)
+            setEventHamdler(child, `onstalled`)
+            setEventHamdler(child, `onsuspend`)
+            setEventHamdler(child, `ontimeupdate`)
+            setEventHamdler(child, `onvolumechange`)
+            setEventHamdler(child, `onwaiting`)
+            setEventHamdler(child, `ontoggle`)
+
+            setEventHamdler(child)
             marker.after(child)
         }
         componentObjectInfo.mounted = true
