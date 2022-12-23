@@ -9,6 +9,16 @@
             afterUnmount() { }
             props = {
                 componentObjectId: "",
+                url: "",
+                firstName: "",
+                lastName: "",
+                city: "",
+                state: "",
+                starCount: 0,
+                review: "Review Text",
+                usefulCount: 0,
+                funnyCount: 0,
+                coolCount: 0,
             }
         }
     </script>
@@ -17,21 +27,30 @@
     <style>
     </style>
     <component-markup>
-        <article id="{componentObjectId}" class="flex-row w100 overflow-auto">
-            <section>
-                <div>Stars</div>
-                <include-html include-in="index.html" src="./components/avatar.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
-                <div>First Name</div>
-                <div>Last Name</div>
-                <div>City</div>
-                <div>State</div>
-                <div>Review</div>
-                <div>Useful Count</div>
-                <div>Funny Count</div>
-                <div>Cool Count</div>
+        <article id="{componentObjectId}" class="flex-col w100 overflow-auto">
+            <div>
+                <include-html include-in="index.html" src="./components/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
+                    <include-props>
+                        { 
+                            "url": "{url}",
+                            "firstName": "{firstName}",
+                            "lastName": "{lastName}",
+                            "city": "{city}",
+                            "state": "{state}"
+                        }          
+                    </include-props>
+                </include-html>
+            </div>
+            <section id="{componentObjectId}-review-body" class="flex-col">
+                <include-html include-in="index.html" src="./components/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+                    <include-props>{ "editable": false }</include-props>
+                    <include-vars>{ "count": {starCount} }</include-vars>
+                </include-html>
+                <div id="{componentObjectId}-review" class="w100">{review}</div>
+                <include-html include-in="index.html" src="./components/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}-ufc">
+                    <include-vars>{ "usefulCount": {usefulCount}, "funnyCount": {funnyCount}, "coolCount": {coolCount} }</include-vars>
+                </include-html>
             </section>
-
-            <img src="./images/o0.jpg" height="300">
         </article>
     </component-markup>
 </vanilla-component>

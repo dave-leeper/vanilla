@@ -473,19 +473,19 @@
       <include-html include-in="index.html" src="./components/slideshow.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
     </div>
     <div>
-      <include-html include-in="index.html" src="./components/avatar.html" component-class="Avatar" component-id="Avatar1">
-        <include-props>{ "url": "https://s3-media0.fl.yelpcdn.com/photo/mIx0gj-FV0R_Bv26MzhRLA/60s.jpg" }</include-props>
-      </include-html>
-      <include-html include-in="index.html" src="./components/stars.html" component-class="Stars" component-id="Stars1"></include-html>
-      <include-html include-in="index.html" src="./components/stars.html" component-class="Stars" component-id="Stars2"></include-html>
-      <include-html include-in="index.html" src="./components/review-header.html" component-class="ReviewHeader" component-id="ReviewHeader1">
+      <include-html include-in="index.html" src="./components/review.html" component-class="Review" component-id="Review">
         <include-props>
           { 
             "url": "https://s3-media0.fl.yelpcdn.com/photo/mIx0gj-FV0R_Bv26MzhRLA/60s.jpg",
             "firstName": "Joe",
             "lastName": "S",
             "city": "Big City",
-            "state": "AZ"
+            "state": "AZ",
+            "starCount": 5,
+            "review": "Amazing",
+            "usefulCount": 3,
+            "funnyCount": 2,
+            "coolCount": 1
           }
         </include-props>
       </include-html>

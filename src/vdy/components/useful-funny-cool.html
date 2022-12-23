@@ -1,0 +1,34 @@
+<vanilla-component>
+    <script>
+        class UsefulFunnyCool{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            incrimentUseful() { this.vars.usefulCount++; }
+            incrimentFunny() { this.vars.funnyCount++ }
+            incrimentCool() { this.vars.coolCount++ }
+            props = {
+                componentObjectId: "",
+            }
+            vars = {
+                usefulCount: 0,
+                funnyCount: 0,
+                coolCount: 0,
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="flex-row">
+            <div id="{componentObjectId}-useful" class="round-5px border-1 border-black border-solid pad-3 margin-2 cursor-pointer caption-2" onclick="$obj.incrimentUseful()">💡 Useful <strong id="{componentObjectId}-useful-strong">{usefulCount}</strong></div>
+            <div id="{componentObjectId}-funny" class="round-5px border-1 border-black border-solid pad-3 margin-2 cursor-pointer caption-2" onclick="$obj.incrimentFunny()">😀 Funny <strong id="{componentObjectId}-useful-funny">{funnyCount}</strong></div>
+            <div id="{componentObjectId}-cool" class="round-5px border-1 border-black border-solid pad-3 margin-2 cursor-pointer caption-2" onclick="$obj.incrimentCool()">😎 Cool <strong id="{componentObjectId}-useful-cool">{coolCount}</strong></div>
+        </div>
+    </component-markup>
+</vanilla-component>

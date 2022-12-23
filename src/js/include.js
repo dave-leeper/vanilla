@@ -103,9 +103,11 @@ class VanillaComponentLifecycle {
         if (node.nodeValue) {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
 
-            const matches = -1 !== node.originalNodeValue.indexOf(`{${member}}`)
-            if (matches) {
-                node.nodeValue = node.nodeValue.replaceAll(`{${member}}`, data[member])
+            const originalMatches = -1 !== node.originalNodeValue.indexOf(`{${member}}`)
+            const matches = -1 !== node.nodeValue.indexOf(`{${member}}`)
+            if (originalMatches || matches) {
+                let value = (matches)? node.nodeValue : node.originalNodeValue
+                node.nodeValue = value.replaceAll(`{${member}}`, data[member])
             }
         }
         for (let child of node.childNodes) {
@@ -116,9 +118,11 @@ class VanillaComponentLifecycle {
         if (node.attributes) {
             for (const attr of node.attributes) {
                 if (!attr.originalAttributeValue) { attr.originalAttributeValue = attr.value }
-                const matches = -1 !== attr.originalAttributeValue.indexOf(`{${member}}`)
-                if (matches) {
-                    attr.value = attr.value.replaceAll(`{${member}}`, data[member])
+                const originalMatches = -1 !== attr.originalAttributeValue.indexOf(`{${member}}`)
+                const matches = -1 !== attr.value.indexOf(`{${member}}`)
+                if (originalMatches || matches) {
+                    let value = (matches)? attr.value : attr.originalAttributeValue
+                    attr.value = value.replaceAll(`{${member}}`, data[member])
                 }
             }
         }
@@ -294,15 +298,12 @@ class VanillaComponentLifecycle {
         let propsElements = includeElement.getElementsByTagName('include-props')
         let varsElements = includeElement.getElementsByTagName('include-vars')
 
-        console.log(`${propsElements.length} ${varsElements.length}`)
-
         if (propsElements.length) {
            if (1 < propsElements.length) { 
                 console.error(`createComponentObject: Only one include-props tag is allowed.`)
                 return false 
             }
             
-            console.log(propsElements[0].innerText)
             let propsObject = JSON.parse(propsElements[0].innerText)
 
             componentObject.props = {...componentObject.props, ...propsObject}
