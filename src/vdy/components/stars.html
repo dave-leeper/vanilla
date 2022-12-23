@@ -1,0 +1,48 @@
+<vanilla-component>
+    <script>
+        class Stars{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.vars.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { 
+                this.star1 = document.getElementById(`${this.vars.componentObjectId}-star-1`)
+                this.star2 = document.getElementById(`${this.vars.componentObjectId}-star-2`)
+                this.star3 = document.getElementById(`${this.vars.componentObjectId}-star-3`)
+                this.star4 = document.getElementById(`${this.vars.componentObjectId}-star-4`)
+                this.star5 = document.getElementById(`${this.vars.componentObjectId}-star-5`)
+            }
+            beforeUnmount() { }
+            afterUnmount() { }
+            setStars(count) {
+                if (1 === this.vars.count && 1 === count) {
+                    this.vars.count = 0
+                } else {
+                    this.vars.count = count
+                }
+
+                this.star1.innerText = (0 < this.vars.count)? `★` : `☆`
+                this.star2.innerText = (1 < this.vars.count)? `★` : `☆`
+                this.star3.innerText = (2 < this.vars.count)? `★` : `☆`
+                this.star4.innerText = (3 < this.vars.count)? `★` : `☆`
+                this.star5.innerText = (4 < this.vars.count)? `★` : `☆`
+            }
+            vars = {
+                count: 0,
+                componentObjectId: "",
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="flex-row">
+            <div id="{componentObjectId}-star-1" class="cursor-pointer red-f margin-1" onclick="$obj.setStars(1)">☆</div>
+            <div id="{componentObjectId}-star-2" class="cursor-pointer red-f margin-1" onclick="$obj.setStars(2)">☆</div>
+            <div id="{componentObjectId}-star-3" class="cursor-pointer red-f margin-1" onclick="$obj.setStars(3)">☆</div>
+            <div id="{componentObjectId}-star-4" class="cursor-pointer red-f margin-1" onclick="$obj.setStars(4)">☆</div>
+            <div id="{componentObjectId}-star-5" class="cursor-pointer red-f margin-1" onclick="$obj.setStars(5)">☆</div>
+        </div>
+    </component-markup>
+</vanilla-component>

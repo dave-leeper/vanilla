@@ -1,0 +1,37 @@
+<vanilla-component>
+    <script>
+        class ReviewHeader{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { console.log(`PROPS: ${JSON.stringify(this.props)}`) }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            props = {
+                componentObjectId: "",
+                url: "",
+                firstName: "",
+                lastName: "",
+                city: "",
+                state: "",
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="flex-row">
+            <div id="{componentObjectId}-avatar" class="margin-2">
+                <include-html include-in="index.html" src="./components/avatar.html" component-class="Avatar" component-id="{componentObjectId}-Avatar1">
+                    <include-props>{ "url": "{url}" }</include-props>
+                </include-html>
+            </div>
+            <div class="flex-col margin-2">
+                <div class="subtitle-2">{firstName} {lastName}</div>
+                <div>{city}, {state}</div>
+            </div>
+        </div>
+    </component-markup>
+</vanilla-component>

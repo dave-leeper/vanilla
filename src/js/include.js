@@ -103,9 +103,9 @@ class VanillaComponentLifecycle {
         if (node.nodeValue) {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
 
-            const matches = node.originalNodeValue.match(/[^{]+(?=\})/g)
-            if (matches && matches.includes(member)) {
-                node.nodeValue = node.originalNodeValue.replaceAll(`{${member}}`, data[member])
+            const matches = -1 !== node.originalNodeValue.indexOf(`{${member}}`)
+            if (matches) {
+                node.nodeValue = node.nodeValue.replaceAll(`{${member}}`, data[member])
             }
         }
         for (let child of node.childNodes) {
@@ -116,9 +116,9 @@ class VanillaComponentLifecycle {
         if (node.attributes) {
             for (const attr of node.attributes) {
                 if (!attr.originalAttributeValue) { attr.originalAttributeValue = attr.value }
-                const matches = attr.originalAttributeValue.match(/[^{]+(?=\})/g)
-                if (matches && matches.includes(member)) {
-                    attr.value = attr.originalAttributeValue.replaceAll(`{${member}}`, data[member])
+                const matches = -1 !== attr.originalAttributeValue.indexOf(`{${member}}`)
+                if (matches) {
+                    attr.value = attr.value.replaceAll(`{${member}}`, data[member])
                 }
             }
         }
@@ -290,17 +290,34 @@ class VanillaComponentLifecycle {
             marker.type = 'text/javascript'
             includeElement.parentNode.replaceChild(marker, includeElement);
         }
-        if (includeElement.attributes && includeElement.attributes[`props`] && includeElement.attributes[`props`].value) {
-            let props = JSON.parse(includeElement.attributes[`props`].value)
 
-            componentObject.props = {...componentObject.props, ...props}
-        }
-        if (includeElement.attributes && includeElement.attributes[`vars`] && includeElement.attributes[`vars`].value) {
-            let vars = JSON.parse(includeElement.attributes[`vars`].value)
+        let propsElements = includeElement.getElementsByTagName('include-props')
+        let varsElements = includeElement.getElementsByTagName('include-vars')
 
-            componentObject.vars = {...componentObject.vars, ...vars}
+        console.log(`${propsElements.length} ${varsElements.length}`)
+
+        if (propsElements.length) {
+           if (1 < propsElements.length) { 
+                console.error(`createComponentObject: Only one include-props tag is allowed.`)
+                return false 
+            }
+            
+            console.log(propsElements[0].innerText)
+            let propsObject = JSON.parse(propsElements[0].innerText)
+
+            componentObject.props = {...componentObject.props, ...propsObject}
         }
-        if (componentObject.initialize) { componentObject.initialize() }
+        if (varsElements.length) {
+            if (1 < varsElements.length) { 
+                console.error(`createComponentObject: Only one include-vars tag is allowed.`)
+                return false 
+            }
+
+            let varsObject = JSON.parse(varsElements[0].innerText)
+
+            componentObject.vars = {...componentObject.vars, ...varsObject}
+        }
+        if (componentObject.initialize) { componentObject.initialize(componentObjectId) }
         VanillaComponentLifecycle.wrapVars(componentFragment, componentObject)
         VanillaComponentLifecycle.wrapProps(componentFragment, componentObject)
         return componentObject
@@ -385,11 +402,11 @@ class VanillaComponentLifecycle {
                 let eventHandlerText = node.getAttribute(event)
 
                 if (eventHandlerText && -1 !== eventHandlerText.indexOf(`$obj.`)) {
-                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `window.$vanilla.objectRegistry.get('${componentObjectId}').componentObject.`)
+                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `Vanilla.getComponentObject('${componentObjectId}').`)
                     node.setAttribute(event, eventHandlerText)
                 }
-                for (const grandChild of node.children) {
-                    setEventHamdler(grandChild, event)
+                for (const nodeChild of node.children) {
+                    setEventHamdler(nodeChild, event)
                 }
             }
 
@@ -448,8 +465,6 @@ class VanillaComponentLifecycle {
             setEventHamdler(child, `onvolumechange`)
             setEventHamdler(child, `onwaiting`)
             setEventHamdler(child, `ontoggle`)
-
-            setEventHamdler(child)
             marker.after(child)
         }
         componentObjectInfo.mounted = true
@@ -540,6 +555,8 @@ class VanillaComponentElement extends HTMLElement {}
 class TestScriptElement extends HTMLElement {}
 class ComponentMarkupElement extends HTMLElement {}
 class IncludeHTMLElement extends HTMLElement {}
+class IncludePropsElement extends HTMLElement {}
+class IncludeVarsElement extends HTMLElement {}
 
 class Loader {
     static includeTree = new IncludeTree()
@@ -643,7 +660,8 @@ class Loader {
     }
     static loadIncludeComponent = async function (text, src, includeIn, componentClass, componentObjectId, include) {
         let fragment = VanillaComponentLifecycle.compile(text)
-        let fragmentRegistered = VanillaComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
+        let fragmentAlreadyRegistered = window?.$vanilla?.fragmentRegistry?.has(componentClass)
+        let fragmentRegistered = fragmentAlreadyRegistered || VanillaComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
 
         if (!fragmentRegistered) {
             console.error(`loadIncludeComponent: Failed to register component fragment. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
@@ -689,6 +707,8 @@ class Loader {
         customElements.define('test-script', TestScriptElement, {  });
         customElements.define('component-markup', ComponentMarkupElement, {  });
         customElements.define('include-html', IncludeHTMLElement, {  });
+        customElements.define('include-props', IncludePropsElement, {  });
+        customElements.define('include-vars', IncludeVarsElement, {  });
     }
 }
 

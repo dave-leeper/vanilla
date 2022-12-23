@@ -1,0 +1,37 @@
+<vanilla-component>
+    <script>
+        class Review{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            props = {
+                componentObjectId: "",
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <article id="{componentObjectId}" class="flex-row w100 overflow-auto">
+            <section>
+                <div>Stars</div>
+                <include-html include-in="index.html" src="./components/avatar.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
+                <div>First Name</div>
+                <div>Last Name</div>
+                <div>City</div>
+                <div>State</div>
+                <div>Review</div>
+                <div>Useful Count</div>
+                <div>Funny Count</div>
+                <div>Cool Count</div>
+            </section>
+
+            <img src="./images/o0.jpg" height="300">
+        </article>
+    </component-markup>
+</vanilla-component>
