@@ -99,15 +99,63 @@ class IncludeTree {
     update                                                          Set vars to replace node and attribute values.
 */
 class VanillaComponentLifecycle {
+    static saveOriginalNodeValues = (node) => {
+        if (node.nodeValue) {
+            if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
+        }
+        for (let child of node.childNodes) {
+            VanillaComponentLifecycle.saveOriginalNodeValues(child)
+        }
+    }
+    static saveOriginalNodeAttributes = (node) => {
+        if (node.attributes) {
+            for (const attr of node.attributes) {
+                if (!attr.originalAttributeValue) { attr.originalAttributeValue = attr.value }
+            }
+        }
+        for (let child of node.childNodes) {
+            VanillaComponentLifecycle.saveOriginalNodeAttributes(child)
+        }
+    }
+    static copyOriginalNodeValues = (srcNode, destNode) => {
+        if (srcNode.nodeValue) {
+            if (srcNode.originalNodeValue && !destNode.originalNodeValue) { 
+                destNode.originalNodeValue = srcNode.originalNodeValue
+            }
+        }
+        for (let loop = 0; loop < srcNode.childNodes.length; loop++) {
+            let srcChildNode = srcNode.childNodes[loop]
+            let destChildNode = destNode.childNodes[loop]
+            VanillaComponentLifecycle.copyOriginalNodeValues(srcChildNode, destChildNode)
+        }
+    }
+    static copyOriginalNodeAttributes = (srcNode, destNode) => {
+        if (srcNode.attributes) {
+            for (let loop = 0; loop < srcNode.attributes.length; loop++) {
+                let srcAttribute = srcNode.attributes[loop]
+                let destAttribute = destNode.attributes[loop]
+
+                if (srcAttribute.originalAttributeValue && !destAttribute.originalAttributeValue) { 
+                    destAttribute.originalAttributeValue = srcAttribute.originalAttributeValue 
+                }
+            }
+        }
+        for (let loop = 0; loop < srcNode.childNodes.length; loop++) {
+            let srcChildNode = srcNode.childNodes[loop]
+            let destChildNode = destNode.childNodes[loop]
+            VanillaComponentLifecycle.copyOriginalNodeAttributes(srcChildNode, destChildNode)
+        }
+    }
     static replaceNodeValue = (node, data, member) => {
         if (node.nodeValue) {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
 
-            const originalMatches = -1 !== node.originalNodeValue.indexOf(`{${member}}`)
-            const matches = -1 !== node.nodeValue.indexOf(`{${member}}`)
+            const formattedMember = `{${member}}`
+            const originalMatches = -1 !== node.originalNodeValue.indexOf(formattedMember)
+            const matches = -1 !== node.nodeValue.indexOf(formattedMember)
             if (originalMatches || matches) {
                 let value = (matches)? node.nodeValue : node.originalNodeValue
-                node.nodeValue = value.replaceAll(`{${member}}`, data[member])
+                node.nodeValue = value.replaceAll(formattedMember, data[member])
             }
         }
         for (let child of node.childNodes) {
@@ -183,8 +231,8 @@ class VanillaComponentLifecycle {
             return false 
         }
         if (window?.$vanilla?.fragmentRegistry?.has(componentClass)) { 
-            console.error(`registerDOMFragment: DOM Fragment ${componentClass} is already registered.`)
-            return false 
+            console.info(`registerDOMFragment: DOM Fragment ${componentClass} is already registered.`)
+            return true 
         }
 
         let scripts = componentFragment.querySelectorAll('script')
@@ -245,6 +293,8 @@ class VanillaComponentLifecycle {
         }
         if (!window.$vanilla) { window.$vanilla = {} }
         if (!window.$vanilla.fragmentRegistry) { window.$vanilla.fragmentRegistry = new Map() }
+        VanillaComponentLifecycle.saveOriginalNodeValues(componentFragment)
+        VanillaComponentLifecycle.saveOriginalNodeAttributes(componentFragment)
         window.$vanilla.fragmentRegistry.set(componentClass, componentFragment)
 
         return true
@@ -283,7 +333,7 @@ class VanillaComponentLifecycle {
         }
 
         let componentObject = eval(` new ${componentClass}()`)
-        let markerId = `-VanillaComponentMarker${componentObjectId}`
+        let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
         let componentFragment =  window.$vanilla.fragmentRegistry.get(componentClass)
 
@@ -292,6 +342,7 @@ class VanillaComponentLifecycle {
 
             marker.id = markerId
             marker.type = 'text/javascript'
+            // TODO: Do not replace child until repeat is done.
             includeElement.parentNode.replaceChild(marker, includeElement);
         }
 
@@ -319,12 +370,17 @@ class VanillaComponentLifecycle {
             componentObject.vars = {...componentObject.vars, ...varsObject}
         }
         if (componentObject.initialize) { componentObject.initialize(componentObjectId) }
-        VanillaComponentLifecycle.wrapVars(componentFragment, componentObject)
-        VanillaComponentLifecycle.wrapProps(componentFragment, componentObject)
+
+        let members = Object.getOwnPropertyNames(componentObject.props)
+
+        for (let member of members) {
+            VanillaComponentLifecycle.replaceNodeValue(componentFragment, componentObject.props, member)
+            VanillaComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.props, member)
+        }
         return componentObject
     }
-    static registerComponentObject = (componentClass, componentObjectID, componentObject) => {
-        if (!componentObjectID) { 
+    static registerComponentObject = (componentClass, componentObjectId, componentObject) => {
+        if (!componentObjectId) { 
             console.error(`registerComponentObject: No component object id provided for component object registration.`)
             return false 
         }
@@ -336,13 +392,105 @@ class VanillaComponentLifecycle {
             console.error(`registerComponentObject: No fragment id provided for component object registration.`)
             return false 
         }
-        if (window?.$vanilla?.objectRegistry?.has(componentObjectID)) { 
-            console.error(`Component object ${componentObjectID} is already registered.`)
+        if (window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
+            console.error(`Component object ${componentObjectId} is already registered.`)
             return false 
         }
+
+        let componentDOM = []
+        let fragment = window.$vanilla.fragmentRegistry.get(componentClass)
+        let markup = fragment.querySelector(`component-markup`)
+        let clonedFragment = fragment.cloneNode(true)
+        let clonedMarkup = clonedFragment.querySelector(`component-markup`)
+
+        if (!clonedMarkup) { 
+            console.error(`Mount: Markup for ${componentObjectId} not found.`)
+            return false 
+        }
+
         if (!window.$vanilla) { window.$vanilla = {} }
         if (!window.$vanilla.objectRegistry) { window.$vanilla.objectRegistry = new Map() }
-        window.$vanilla.objectRegistry.set(componentObjectID, {componentObject: componentObject, componentClass, mounted: false})
+        for (let loop = clonedMarkup.children.length - 1; loop >= 0; loop--) {
+            let originalChild = markup.children[loop]
+            let clonedChild = clonedMarkup.children[loop]
+            const setEventHamdler = (node, event) => {
+                let eventHandlerText = node.getAttribute(event)
+
+                if (eventHandlerText && -1 !== eventHandlerText.indexOf(`$obj.`)) {
+                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `Vanilla.getComponentObject('${componentObjectId}').`)
+                    node.setAttribute(event, eventHandlerText)
+                }
+                for (const nodeChild of node.children) {
+                    setEventHamdler(nodeChild, event)
+                }
+            }
+
+            componentDOM.push(clonedChild)
+            setEventHamdler(clonedChild, `onblur`)
+            setEventHamdler(clonedChild, `onchange`)
+            setEventHamdler(clonedChild, `oncontextmenu`)
+            setEventHamdler(clonedChild, `onfocus`)
+            setEventHamdler(clonedChild, `oninput`)
+            setEventHamdler(clonedChild, `oninvalid`)
+            setEventHamdler(clonedChild, `onreset`)
+            setEventHamdler(clonedChild, `onsearch`)
+            setEventHamdler(clonedChild, `onselect`)
+            setEventHamdler(clonedChild, `onsubmit`)
+            setEventHamdler(clonedChild, `onkeydown`)
+            setEventHamdler(clonedChild, `onkeyup`)
+            setEventHamdler(clonedChild, `onclick`)
+            setEventHamdler(clonedChild, `ondblclick`)
+            setEventHamdler(clonedChild, `onmousedown`)
+            setEventHamdler(clonedChild, `onmousemove`)
+            setEventHamdler(clonedChild, `onmouseout`)
+            setEventHamdler(clonedChild, `onmouseover`)
+            setEventHamdler(clonedChild, `onmouseup`)
+            setEventHamdler(clonedChild, `onwheel`)
+            setEventHamdler(clonedChild, `ondrag`)
+            setEventHamdler(clonedChild, `ondragend`)
+            setEventHamdler(clonedChild, `ondragenter`)
+            setEventHamdler(clonedChild, `ondragleave`)
+            setEventHamdler(clonedChild, `ondragover`)
+            setEventHamdler(clonedChild, `ondragstart`)
+            setEventHamdler(clonedChild, `ondrop`)
+            setEventHamdler(clonedChild, `onscroll`)
+            setEventHamdler(clonedChild, `oncopy`)
+            setEventHamdler(clonedChild, `oncut`)
+            setEventHamdler(clonedChild, `onpaste`)
+            setEventHamdler(clonedChild, `onabort`)
+            setEventHamdler(clonedChild, `oncanplay`)
+            setEventHamdler(clonedChild, `oncanplaythrough`)
+            setEventHamdler(clonedChild, `oncuechange`)
+            setEventHamdler(clonedChild, `ondurationchange`)
+            setEventHamdler(clonedChild, `onemptied`)
+            setEventHamdler(clonedChild, `onended`)
+            setEventHamdler(clonedChild, `onerror`)
+            setEventHamdler(clonedChild, `onloadeddata`)
+            setEventHamdler(clonedChild, `onloadedmetadata`)
+            setEventHamdler(clonedChild, `onloadstart`)
+            setEventHamdler(clonedChild, `onpause`)
+            setEventHamdler(clonedChild, `onplay`)
+            setEventHamdler(clonedChild, `onplaying`)
+            setEventHamdler(clonedChild, `onprogress`)
+            setEventHamdler(clonedChild, `onratechange`)
+            setEventHamdler(clonedChild, `onseeked`)
+            setEventHamdler(clonedChild, `onseeking`)
+            setEventHamdler(clonedChild, `onstalled`)
+            setEventHamdler(clonedChild, `onsuspend`)
+            setEventHamdler(clonedChild, `ontimeupdate`)
+            setEventHamdler(clonedChild, `onvolumechange`)
+            setEventHamdler(clonedChild, `onwaiting`)
+            setEventHamdler(clonedChild, `ontoggle`)
+            VanillaComponentLifecycle.copyOriginalNodeValues(originalChild, clonedChild)
+            VanillaComponentLifecycle.copyOriginalNodeAttributes(originalChild, clonedChild)
+        }
+
+        for (let node of componentDOM) {
+            VanillaComponentLifecycle.wrapVars(node, componentObject)
+            VanillaComponentLifecycle.wrapProps(node, componentObject)
+        }
+
+        window.$vanilla.objectRegistry.set(componentObjectId, {componentObject: componentObject, componentClass, componentDOM, mounted: false})
         return true
     }
     static unregisterComponentObject = (componentObjectID) => {
@@ -352,6 +500,10 @@ class VanillaComponentLifecycle {
         }
         if (!window?.$vanilla?.objectRegistry?.has(componentObjectID)) { 
             console.error(`unregisterComponentObject: Component object ${componentObjectID} was not in registery.`)
+            return false 
+        }
+        if (!window.$vanilla.objectRegistry.get(componentObjectID).mounted) { 
+            console.error(`unregisterComponentObject: Cannot unregister a mounted component, ${componentObjectID}.`)
             return false 
         }
         window.$vanilla.objectRegistry.delete(componentObjectID)
@@ -369,7 +521,7 @@ class VanillaComponentLifecycle {
 
         let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
         let fragment = window.$vanilla.fragmentRegistry.get(componentObjectInfo.componentClass)
-        let markerId = `-VanillaComponentMarker${componentObjectId}`
+        let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
 
         if (!fragment) { 
@@ -388,86 +540,12 @@ class VanillaComponentLifecycle {
             console.error(`Mount: Marker for ${componentObjectId} is not in DOM.`)
             return false 
         }
-
-        let clonedFragment = fragment.cloneNode(true)
-        let markup = clonedFragment.querySelector(`component-markup`)
-
-        if (!markup) { 
-            console.error(`Mount: Markup for ${componentObjectId} not found.`)
-            return false 
-        }
         if (componentObjectInfo.componentObject.beforeMount) { componentObjectInfo.componentObject.beforeMount() }
-        for (let loop = markup.children.length - 1; loop >= 0; loop--) {
-            let child = markup.children[loop]
-            const setEventHamdler = (node, event) => {
-                let eventHandlerText = node.getAttribute(event)
 
-                if (eventHandlerText && -1 !== eventHandlerText.indexOf(`$obj.`)) {
-                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `Vanilla.getComponentObject('${componentObjectId}').`)
-                    node.setAttribute(event, eventHandlerText)
-                }
-                for (const nodeChild of node.children) {
-                    setEventHamdler(nodeChild, event)
-                }
-            }
-
-            setEventHamdler(child, `onblur`)
-            setEventHamdler(child, `onchange`)
-            setEventHamdler(child, `oncontextmenu`)
-            setEventHamdler(child, `onfocus`)
-            setEventHamdler(child, `oninput`)
-            setEventHamdler(child, `oninvalid`)
-            setEventHamdler(child, `onreset`)
-            setEventHamdler(child, `onsearch`)
-            setEventHamdler(child, `onselect`)
-            setEventHamdler(child, `onsubmit`)
-            setEventHamdler(child, `onkeydown`)
-            setEventHamdler(child, `onkeyup`)
-            setEventHamdler(child, `onclick`)
-            setEventHamdler(child, `ondblclick`)
-            setEventHamdler(child, `onmousedown`)
-            setEventHamdler(child, `onmousemove`)
-            setEventHamdler(child, `onmouseout`)
-            setEventHamdler(child, `onmouseover`)
-            setEventHamdler(child, `onmouseup`)
-            setEventHamdler(child, `onwheel`)
-            setEventHamdler(child, `ondrag`)
-            setEventHamdler(child, `ondragend`)
-            setEventHamdler(child, `ondragenter`)
-            setEventHamdler(child, `ondragleave`)
-            setEventHamdler(child, `ondragover`)
-            setEventHamdler(child, `ondragstart`)
-            setEventHamdler(child, `ondrop`)
-            setEventHamdler(child, `onscroll`)
-            setEventHamdler(child, `oncopy`)
-            setEventHamdler(child, `oncut`)
-            setEventHamdler(child, `onpaste`)
-            setEventHamdler(child, `onabort`)
-            setEventHamdler(child, `oncanplay`)
-            setEventHamdler(child, `oncanplaythrough`)
-            setEventHamdler(child, `oncuechange`)
-            setEventHamdler(child, `ondurationchange`)
-            setEventHamdler(child, `onemptied`)
-            setEventHamdler(child, `onended`)
-            setEventHamdler(child, `onerror`)
-            setEventHamdler(child, `onloadeddata`)
-            setEventHamdler(child, `onloadedmetadata`)
-            setEventHamdler(child, `onloadstart`)
-            setEventHamdler(child, `onpause`)
-            setEventHamdler(child, `onplay`)
-            setEventHamdler(child, `onplaying`)
-            setEventHamdler(child, `onprogress`)
-            setEventHamdler(child, `onratechange`)
-            setEventHamdler(child, `onseeked`)
-            setEventHamdler(child, `onseeking`)
-            setEventHamdler(child, `onstalled`)
-            setEventHamdler(child, `onsuspend`)
-            setEventHamdler(child, `ontimeupdate`)
-            setEventHamdler(child, `onvolumechange`)
-            setEventHamdler(child, `onwaiting`)
-            setEventHamdler(child, `ontoggle`)
+        for (let child of componentObjectInfo.componentDOM) {
             marker.after(child)
         }
+
         componentObjectInfo.mounted = true
         window.$vanilla.objectRegistry.set(componentObjectId, componentObjectInfo)
         if (componentObjectInfo.componentObject.afterMount) { componentObjectInfo.componentObject.afterMount() }
@@ -495,7 +573,7 @@ class VanillaComponentLifecycle {
         }
 
         let fragment = window.$vanilla.fragmentRegistry.get(componentObjectInfo.componentClass)
-        let markerId = `-VanillaComponentMarker${componentObjectId}`
+        let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
         let markup = fragment.querySelector(`component-markup`)
 

@@ -596,7 +596,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
         let hasIncludeTag = document.getElementById(testIncludeTagId)
-        let hasMarkerTag = document.getElementById(`-VanillaComponentMarkerTestComponent1`)
+        let hasMarkerTag = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
 
         componentObject.props.prop1 = "Some value"
 
@@ -833,7 +833,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         setup(fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, componentObjectId)
         window.$vanilla.fragmentRegistry.set(componentClass, framentRegisryObject)
 
-        let markerElement = document.getElementById(`-VanillaComponentMarkerTestComponent1`)
+        let markerElement = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
 
         markerElement.remove()
         mountResult = VanillaComponentLifecycle.mount(`TestComponent1`)
@@ -905,7 +905,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         window.$vanilla.fragmentRegistry.set(fragmentId, framentRegisryObject)
 
-        let markerElement = document.getElementById(`-VanillaComponentMarkerTestComponent1`)
+        let markerElement = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
 
         markerElement.remove()
         unmountResult = VanillaComponentLifecycle.unmount(`TestComponent1`)
