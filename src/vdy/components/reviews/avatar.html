@@ -12,7 +12,7 @@
             }
             props = {
                 componentObjectId: "",
-                url: `./images/vince.jpg`,
+                imageURL: `./images/vince.jpg`,
             }
         }
     </script>
@@ -21,8 +21,8 @@
     <style>
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="round-50 overflow-hidden center-text border-solid border-1 border-black shadow-white w45px h45px">
-            <img id="{componentObjectId}-img" src="{url}" width="45" onclick="$obj.click()">
+        <div id="{componentObjectId}" class="round-50 overflow-hidden center-text border-solid border-1 border-black w45px h45px">
+            <img id="{componentObjectId}-img" src="{imageURL}" width="45" onclick="$obj.click()">
         </div>
     </component-markup>
 </vanilla-component>

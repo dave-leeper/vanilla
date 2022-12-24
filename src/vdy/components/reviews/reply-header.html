@@ -1,6 +1,6 @@
 <vanilla-component>
     <script>
-        class ReviewHeader{
+        class ReplyHeader{
             className() {return this.constructor.name }
             initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
             beforeMount() { }
@@ -9,11 +9,11 @@
             afterUnmount() { }
             props = {
                 componentObjectId: "",
-                url: "",
+                imageURL: "",
                 firstName: "",
                 lastName: "",
-                city: "",
-                state: "",
+                title: "",
+                date: ""
             }
         }
     </script>
@@ -24,13 +24,13 @@
     <component-markup>
         <div id="{componentObjectId}" class="flex-row">
             <div id="{componentObjectId}-avatar" class="margin-2">
-                <include-html include-in="index.html" src="./components/avatar.html" component-class="Avatar" component-id="{componentObjectId}-Avatar1">
-                    <include-props>{ "url": "{url}" }</include-props>
+                <include-html include-in="reply-header.html" src="./components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}-avatar">
+                    <include-props>{ "imageURL": "{imageURL}" }</include-props>
                 </include-html>
             </div>
             <div class="flex-col margin-2">
                 <div class="subtitle-2">{firstName} {lastName}</div>
-                <div>{city}, {state}</div>
+                <div>{date}</div>
             </div>
         </div>
     </component-markup>

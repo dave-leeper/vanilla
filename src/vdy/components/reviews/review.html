@@ -9,7 +9,7 @@
             afterUnmount() { }
             props = {
                 componentObjectId: "",
-                url: "",
+                imageURL: "",
                 firstName: "",
                 lastName: "",
                 city: "",
@@ -27,27 +27,28 @@
     <style>
     </style>
     <component-markup>
-        <article id="{componentObjectId}" class="flex-col w100 overflow-auto">
+        <article id="{componentObjectId}" class="flex-col shadow-white round-5 pad-5">
             <div>
-                <include-html include-in="index.html" src="./components/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
+                <include-html include-in="review.html" src="./components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
                     <include-props>
                         { 
-                            "url": "{url}",
+                            "imageURL": "{imageURL}",
                             "firstName": "{firstName}",
                             "lastName": "{lastName}",
                             "city": "{city}",
-                            "state": "{state}"
+                            "state": "{state}",
+                            "date": "{date}"
                         }          
                     </include-props>
                 </include-html>
             </div>
-            <section id="{componentObjectId}-review-body" class="flex-col">
-                <include-html include-in="index.html" src="./components/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+            <section id="{componentObjectId}-review-body" class="flex-col w100">
+                <include-html include-in="review.html" src="./components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
                     <include-props>{ "editable": false }</include-props>
-                    <include-vars>{ "count": {starCount} }</include-vars>
+                    <include-vars>{ "rating": {rating} }</include-vars>
                 </include-html>
-                <div id="{componentObjectId}-review" class="w100">{review}</div>
-                <include-html include-in="index.html" src="./components/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}-ufc">
+                <div id="{componentObjectId}-review" class="whitespace overflow-wrap-break border-tb-solid border-1 border-gray-7 pad-5 text-2">{review}</div>
+                <include-html include-in="review.html" src="./components/reviews/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}-ufc">
                     <include-vars>{ "usefulCount": {usefulCount}, "funnyCount": {funnyCount}, "coolCount": {coolCount} }</include-vars>
                 </include-html>
             </section>
